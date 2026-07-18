@@ -1,0 +1,75 @@
+﻿package com.spendingapp.core.sync
+
+import androidx.room.withTransaction
+import com.spendingapp.core.database.SpendingDatabase
+import com.spendingapp.core.database.entity.TransactionEntity
+import com.spendingapp.core.domain.BalanceService
+import com.spendingapp.core.domain.BudgetCheckResult
+import com.spendingapp.core.domain.BudgetChecker
+import com.spendingapp.core.model.TransactionSource
+import com.spendingapp.core.model.TransactionStatus
+import com.spendingapp.core.model.TransactionType
+
+class TransactionImportPipeline(
+    private val database: SpendingDatabase,
+    private val balanceService: BalanceService,
+    private val budgetChecker: BudgetChecker? = null,
+) {
+    suspend fun import(input: ExternalTransactionInput): ImportResult {
+        require(input.amount > 0) { "Amount must be greater than zero" }
+        input.externalTransactionId?.let { externalId ->
+            val duplicate = database.transactionDao().findByExternalId(externalId, input.source.name)
+            if (duplicate != null) return ImportResult.Duplicate(duplicate.id)
+        }
+
+        return database.withTransaction {
+            val status = if (input.type == TransactionType.EXPENSE && input.categoryId == null) {
+                TransactionStatus.PENDING_CATEGORY
+            } else {
+                TransactionStatus.CATEGORIZED
+            }
+            val transaction = TransactionEntity(
+                accountId = input.accountId,
+                categoryId = input.categoryId,
+                type = input.type,
+                status = status,
+                source = input.source,
+                amount = input.amount,
+                description = input.description,
+                externalTransactionId = input.externalTransactionId,
+                referenceNumber = input.referenceNumber,
+                occurredAt = input.occurredAt,
+            )
+            val transactionId = database.transactionDao().insert(transaction)
+            when (input.type) {
+                TransactionType.INCOME -> balanceService.increaseBalance(input.accountId, input.amount, transactionId, "transaction_import")
+                TransactionType.EXPENSE -> balanceService.decreaseBalance(input.accountId, input.amount, transactionId, "transaction_import")
+                TransactionType.ADJUSTMENT,
+                TransactionType.TRANSFER -> Unit
+            }
+            val budgetCheckResult = budgetChecker?.checkAfterTransaction(transaction.copy(id = transactionId)) ?: BudgetCheckResult.NoBudget
+            ImportResult.Imported(transactionId, budgetCheckResult)
+        }
+    }
+}
+
+data class ExternalTransactionInput(
+    val accountId: Long,
+    val type: TransactionType,
+    val source: TransactionSource,
+    val amount: Long,
+    val categoryId: Long? = null,
+    val description: String? = null,
+    val externalTransactionId: String? = null,
+    val referenceNumber: String? = null,
+    val occurredAt: Long,
+)
+
+sealed interface ImportResult {
+    data class Imported(
+        val transactionId: Long,
+        val budgetCheckResult: BudgetCheckResult = BudgetCheckResult.NoBudget,
+    ) : ImportResult
+
+    data class Duplicate(val existingTransactionId: Long) : ImportResult
+}
