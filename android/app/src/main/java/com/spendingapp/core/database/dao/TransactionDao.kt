@@ -22,6 +22,26 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE externalTransactionId = :externalId AND source = :source LIMIT 1")
     suspend fun findByExternalId(externalId: String, source: String): TransactionEntity?
 
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE accountId = :accountId
+            AND source = :source
+            AND referenceNumber = :referenceNumber
+            AND amount = :amount
+            AND occurredAt BETWEEN :fromOccurredAt AND :toOccurredAt
+        LIMIT 1
+        """,
+    )
+    suspend fun findPotentialDuplicate(
+        accountId: Long,
+        source: String,
+        referenceNumber: String,
+        amount: Long,
+        fromOccurredAt: Long,
+        toOccurredAt: Long,
+    ): TransactionEntity?
+
     @Insert
     suspend fun insert(transaction: TransactionEntity): Long
 

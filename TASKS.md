@@ -49,16 +49,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Xác nhận database chính là local database trên Android.
-- [ ] Xác nhận không cần backend/server trong MVP.
-- [ ] Xác nhận 3 mode dữ liệu: manual, pull sync, webhook URL optional.
-- [ ] Xác nhận webhook không chặn MVP.
-- [ ] Ghi quyết định vào `ARCHITECTURE.md` nếu có thay đổi.
+- [x] Xác nhận database chính là local database trên Android.
+- [x] Xác nhận không cần backend/server trong MVP.
+- [x] Xác nhận 3 mode dữ liệu: manual, pull sync, webhook URL optional.
+- [x] Xác nhận webhook không chặn MVP.
+- [x] Ghi quyết định vào `ARCHITECTURE.md` nếu có thay đổi.
 
 **Acceptance criteria:**
 
-- [ ] Team có thể bắt đầu code Android mà không cần chờ backend.
-- [ ] Task P0 không phụ thuộc server public.
+- [x] Team có thể bắt đầu code Android mà không cần chờ backend.
+- [x] Task P0 không phụ thuộc server public.
 
 ### T-0002 - Chốt Android stack `[P0][FE][OPS]`
 
@@ -68,17 +68,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Chốt ngôn ngữ Kotlin.
-- [ ] Chốt UI bằng Jetpack Compose.
-- [ ] Chốt local database Room.
-- [ ] Chốt background sync WorkManager.
-- [ ] Chốt settings bằng DataStore.
-- [ ] Chốt dependency injection nếu dùng.
+- [x] Chốt ngôn ngữ Kotlin.
+- [x] Chốt UI bằng Jetpack Compose.
+- [x] Chốt local database Room.
+- [x] Chốt background sync WorkManager.
+- [x] Chốt settings bằng DataStore.
+- [x] Chốt dependency injection nếu dùng.
 
 **Acceptance criteria:**
 
-- [ ] Có stack rõ trong README hoặc docs.
-- [ ] Không có lựa chọn công nghệ mâu thuẫn nhau.
+- [x] Có stack rõ trong README hoặc docs.
+- [x] Không có lựa chọn công nghệ mâu thuẫn nhau.
 
 ### T-0003 - Chốt Android SDK targets `[P0][OPS]`
 
@@ -86,16 +86,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Chốt `minSdk`.
-- [ ] Chốt `targetSdk`.
-- [ ] Chốt `compileSdk`.
-- [ ] Chốt application id/package name.
-- [ ] Chốt versioning nội bộ.
+- [x] Chốt `minSdk`.
+- [x] Chốt `targetSdk`.
+- [x] Chốt `compileSdk`.
+- [x] Chốt application id/package name.
+- [x] Chốt versioning nội bộ.
 
 **Acceptance criteria:**
 
-- [ ] Project build được theo SDK đã chốt.
-- [ ] Cấu hình phù hợp để test trên thiết bị phổ biến.
+- [x] Project build được theo SDK đã chốt.
+- [x] Cấu hình phù hợp để test trên thiết bị phổ biến.
 
 ### T-0004 - Chốt rule tiền tệ `[P0][CORE]`
 
@@ -103,16 +103,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Lưu tiền VND bằng integer/Long theo đơn vị đồng.
-- [ ] Không dùng Float/Double cho tiền.
-- [ ] Chốt MVP hỗ trợ VND trước.
-- [ ] Chốt format hiển thị tiền.
-- [ ] Chốt timezone xử lý ngày giao dịch.
+- [x] Lưu tiền VND bằng integer/Long theo đơn vị đồng.
+- [x] Không dùng Float/Double cho tiền.
+- [x] Chốt MVP hỗ trợ VND trước.
+- [x] Chốt format hiển thị tiền.
+- [x] Chốt timezone xử lý ngày giao dịch.
 
 **Acceptance criteria:**
 
-- [ ] Tất cả entity dùng kiểu tiền nhất quán.
-- [ ] Báo cáo tháng không sai vì timezone.
+- [x] Tất cả entity dùng kiểu tiền nhất quán.
+- [x] Báo cáo tháng không sai vì timezone.
 
 ---
 
@@ -124,15 +124,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo Android project.
-- [ ] Cấu hình Gradle/Kotlin.
-- [ ] Cấu hình Compose/Material 3.
-- [ ] Tạo app theme cơ bản.
-- [ ] Tạo màn hình placeholder đầu tiên.
+- [x] Tạo Android project.
+- [x] Cấu hình Gradle/Kotlin.
+- [x] Cấu hình Compose/Material 3.
+- [x] Tạo app theme cơ bản.
+- [x] Tạo màn hình placeholder đầu tiên.
 
 **Acceptance criteria:**
 
-- [ ] App build thành công.
+- [x] App build thành công.
 - [ ] App mở được trên emulator/device.
 
 ### T-0102 - Thiết lập kiến trúc module/package `[P0][FE][CORE]`
@@ -141,21 +141,21 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo package `core`.
-- [ ] Tạo package `account`.
-- [ ] Tạo package `transaction`.
-- [ ] Tạo package `category`.
-- [ ] Tạo package `budget`.
-- [ ] Tạo package `goal`.
-- [ ] Tạo package `sync`.
-- [ ] Tạo package `notification`.
-- [ ] Tạo package `reporting`.
-- [ ] Tạo package `settings`.
+- [x] Tạo package `core`.
+- [x] Tạo package `account`.
+- [x] Tạo package `transaction`.
+- [x] Tạo package `category`.
+- [x] Tạo package `budget`.
+- [x] Tạo package `goal`.
+- [x] Tạo package `sync`.
+- [x] Tạo package `notification`.
+- [x] Tạo package `reporting`.
+- [x] Tạo package `settings`.
 
 **Acceptance criteria:**
 
-- [ ] UI không chứa logic tài chính chính.
-- [ ] Domain logic có thể test độc lập.
+- [x] UI không chứa logic tài chính chính.
+- [x] Domain logic có thể test độc lập.
 
 ### T-0103 - Thiết lập Room database `[P0][CORE]`
 
@@ -163,16 +163,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo Room database class.
-- [ ] Tạo migration strategy.
-- [ ] Tạo DAO base pattern.
-- [ ] Cấu hình database transaction.
-- [ ] Chuẩn bị seed data local.
+- [x] Tạo Room database class.
+- [x] Tạo migration strategy.
+- [x] Tạo DAO base pattern.
+- [x] Cấu hình database transaction.
+- [x] Chuẩn bị seed data local.
 
 **Acceptance criteria:**
 
-- [ ] App tạo database local khi chạy lần đầu.
-- [ ] Có thể migration version database an toàn.
+- [x] App tạo database local khi chạy lần đầu.
+- [x] Có thể migration version database an toàn.
 
 ### T-0104 - Thiết lập DataStore settings `[P0][CORE]`
 
@@ -180,16 +180,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo settings repository.
+- [x] Tạo settings repository.
 - [ ] Lưu tùy chọn theme nếu có.
-- [ ] Lưu tùy chọn sync.
-- [ ] Lưu tùy chọn notification.
-- [ ] Không lưu token nhạy cảm trực tiếp bằng plain DataStore.
+- [x] Lưu tùy chọn sync.
+- [x] Lưu tùy chọn notification.
+- [x] Không lưu token nhạy cảm trực tiếp bằng plain DataStore.
 
 **Acceptance criteria:**
 
 - [ ] Settings đọc/ghi được qua Flow.
-- [ ] Token/secret không lưu plain text trong DataStore.
+- [x] Token/secret không lưu plain text trong DataStore.
 
 ### T-0105 - Thiết lập bảo mật secret local `[P0][SEC]`
 
@@ -197,16 +197,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo wrapper dùng Android Keystore.
-- [ ] Lưu secret/token ở storage mã hóa.
-- [ ] Tạo hàm xóa token.
-- [ ] Không log token.
-- [ ] Có test/kiểm tra manual cho lưu/xóa token.
+- [x] Tạo wrapper dùng Android Keystore.
+- [x] Lưu secret/token ở storage mã hóa.
+- [x] Tạo hàm xóa token.
+- [x] Không log token.
+- [x] Có test/kiểm tra manual cho lưu/xóa token.
 
 **Acceptance criteria:**
 
-- [ ] Token SePay không xuất hiện plain text trong log.
-- [ ] User có thể xóa token khỏi thiết bị.
+- [x] Token SePay không xuất hiện plain text trong log.
+- [x] User có thể xóa token khỏi thiết bị.
 
 ### T-0106 - Thiết lập navigation `[P0][FE]`
 
@@ -214,17 +214,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo navigation graph.
-- [ ] Tạo tab hoặc bottom navigation.
-- [ ] Thêm route Dashboard.
-- [ ] Thêm route Transactions.
-- [ ] Thêm route Budgets.
-- [ ] Thêm route Goals.
-- [ ] Thêm route Settings.
+- [x] Tạo navigation graph.
+- [x] Tạo tab hoặc bottom navigation.
+- [x] Thêm route Dashboard.
+- [x] Thêm route Transactions.
+- [x] Thêm route Budgets.
+- [x] Thêm route Goals.
+- [x] Thêm route Settings.
 
 **Acceptance criteria:**
 
-- [ ] User chuyển được giữa các màn chính.
+- [x] User chuyển được giữa các màn chính.
 
 ### T-0107 - Thiết lập code quality `[P0][QA][OPS]`
 
@@ -233,13 +233,13 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 **Checklist:**
 
 - [ ] Cấu hình formatter/lint phù hợp.
-- [ ] Tạo unit test sample.
+- [x] Tạo unit test sample.
 - [ ] Tạo README lệnh build/test.
-- [ ] Cấu hình gitignore.
+- [x] Cấu hình gitignore.
 
 **Acceptance criteria:**
 
-- [ ] Có thể chạy build và test bằng command rõ ràng.
+- [x] Có thể chạy build và test bằng command rõ ràng.
 
 ---
 
@@ -251,20 +251,20 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity `Account`.
-- [ ] Field `type`: bank, cash, wallet, saving, investment.
-- [ ] Field `balance` dạng Long.
-- [ ] Field `currency`.
-- [ ] Field `provider`.
-- [ ] Field `externalAccountId` cho SePay/ngân hàng.
-- [ ] Field `isActive`.
-- [ ] DAO create/update/list.
+- [x] Entity `Account`.
+- [x] Field `type`: bank, cash, wallet, saving, investment.
+- [x] Field `balance` dạng Long.
+- [x] Field `currency`.
+- [x] Field `provider`.
+- [x] Field `externalAccountId` cho SePay/ngân hàng.
+- [x] Field `isActive`.
+- [x] DAO create/update/list.
 
 **Acceptance criteria:**
 
-- [ ] Tạo được tài khoản tiền mặt.
-- [ ] Tạo được tài khoản ngân hàng.
-- [ ] Tính tổng số dư local chính xác.
+- [x] Tạo được tài khoản tiền mặt.
+- [x] Tạo được tài khoản ngân hàng.
+- [x] Tính tổng số dư local chính xác.
 
 ### T-0202 - Tạo entity Category `[P0][CORE]`
 
@@ -272,17 +272,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity `Category`.
-- [ ] Field name/icon/color/type.
-- [ ] Field `isDefault`.
-- [ ] Field `isArchived`.
-- [ ] Seed category mặc định.
-- [ ] DAO create/update/archive/list.
+- [x] Entity `Category`.
+- [x] Field name/icon/color/type.
+- [x] Field `isDefault`.
+- [x] Field `isArchived`.
+- [x] Seed category mặc định.
+- [x] DAO create/update/archive/list.
 
 **Acceptance criteria:**
 
-- [ ] Lần đầu mở app có hạng mục mặc định.
-- [ ] Không xóa cứng category đã dùng.
+- [x] Lần đầu mở app có hạng mục mặc định.
+- [x] Không xóa cứng category đã dùng.
 
 ### T-0203 - Tạo entity Transaction `[P0][CORE]`
 
@@ -290,18 +290,18 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity `Transaction`.
-- [ ] Type: income, expense, transfer, adjustment.
-- [ ] Status: pending_category, categorized, ignored, duplicated, adjusted.
-- [ ] Field source: manual, sepay_api, webhook_endpoint, import_file.
-- [ ] Field external id/reference.
-- [ ] Field occurredAt.
+- [x] Entity `Transaction`.
+- [x] Type: income, expense, transfer, adjustment.
+- [x] Status: pending_category, categorized, ignored, duplicated, adjusted.
+- [x] Field source: manual, sepay_api, webhook_endpoint, import_file.
+- [x] Field external id/reference.
+- [x] Field occurredAt.
 - [ ] DAO create/update/list/filter.
 
 **Acceptance criteria:**
 
-- [ ] Tạo được giao dịch thu/chi local.
-- [ ] Giao dịch từ SePay có thể pending category.
+- [x] Tạo được giao dịch thu/chi local.
+- [x] Giao dịch từ SePay có thể pending category.
 
 ### T-0204 - Tạo entity BalanceLog `[P0][CORE]`
 
@@ -309,18 +309,18 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity `BalanceLog`.
-- [ ] Lưu account id.
-- [ ] Lưu transaction id nếu có.
-- [ ] Lưu before/after balance.
-- [ ] Lưu changed amount.
-- [ ] Lưu reason/source.
-- [ ] DAO list by account/time.
+- [x] Entity `BalanceLog`.
+- [x] Lưu account id.
+- [x] Lưu transaction id nếu có.
+- [x] Lưu before/after balance.
+- [x] Lưu changed amount.
+- [x] Lưu reason/source.
+- [x] DAO list by account/time.
 
 **Acceptance criteria:**
 
-- [ ] Mỗi thay đổi số dư có BalanceLog.
-- [ ] Truy được vì sao số dư đổi.
+- [x] Mỗi thay đổi số dư có BalanceLog.
+- [x] Truy được vì sao số dư đổi.
 
 ### T-0205 - Tạo entity LocalEvent `[P0][CORE]`
 
@@ -328,17 +328,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity `LocalEvent` hoặc in-memory event bus + log tùy chọn.
-- [ ] Event type.
-- [ ] Aggregate id.
-- [ ] Payload.
-- [ ] Status/retry nếu cần.
-- [ ] Created/processed time.
+- [x] Entity `LocalEvent` hoặc in-memory event bus + log tùy chọn.
+- [x] Event type.
+- [x] Aggregate id.
+- [x] Payload.
+- [x] Status/retry nếu cần.
+- [x] Created/processed time.
 
 **Acceptance criteria:**
 
-- [ ] Domain có thể phát event sau nghiệp vụ chính.
-- [ ] Budget/report/notification không bị viết cứng vào UI.
+- [x] Domain có thể phát event sau nghiệp vụ chính.
+- [x] Budget/report/notification không bị viết cứng vào UI.
 
 ### T-0206 - Implement BalanceService `[P0][CORE]`
 
@@ -346,17 +346,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Cộng tiền vào account.
-- [ ] Trừ tiền khỏi account.
-- [ ] Điều chỉnh số dư thủ công.
-- [ ] Tạo BalanceLog tự động.
-- [ ] Chạy trong Room transaction.
-- [ ] Không cho sửa balance trực tiếp từ UI.
+- [x] Cộng tiền vào account.
+- [x] Trừ tiền khỏi account.
+- [x] Điều chỉnh số dư thủ công.
+- [x] Tạo BalanceLog tự động.
+- [x] Chạy trong Room transaction.
+- [x] Không cho sửa balance trực tiếp từ UI.
 
 **Acceptance criteria:**
 
-- [ ] Balance và BalanceLog luôn khớp.
-- [ ] Test pass cho income/expense/adjustment.
+- [x] Balance và BalanceLog luôn khớp.
+- [x] Test pass cho income/expense/adjustment.
 
 ### T-0207 - Implement TransactionImportPipeline `[P0][CORE][SYNC]`
 
@@ -364,17 +364,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Normalize transaction input.
-- [ ] Deduplicate theo external id/reference/amount/date/account/source.
-- [ ] Validate amount/date/account.
-- [ ] Save transaction.
-- [ ] Update balance qua BalanceService.
-- [ ] Emit local event.
+- [x] Normalize transaction input.
+- [x] Deduplicate theo external id/reference/amount/date/account/source.
+- [x] Validate amount/date/account.
+- [x] Save transaction.
+- [x] Update balance qua BalanceService.
+- [x] Emit local event.
 
 **Acceptance criteria:**
 
-- [ ] Import cùng giao dịch 2 lần không đổi balance lần hai.
-- [ ] Manual/SePay/import file có thể dùng chung logic nền.
+- [x] Import cùng giao dịch 2 lần không đổi balance lần hai.
+- [x] Manual/SePay/import file có thể dùng chung logic nền.
 
 ---
 
@@ -404,9 +404,9 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 **Checklist:**
 
 - [ ] Chọn loại giao dịch.
-- [ ] Chọn account.
+- [x] Chọn account.
 - [ ] Nhập số tiền.
-- [ ] Chọn category.
+- [x] Chọn category.
 - [ ] Chọn thời gian.
 - [ ] Nhập ghi chú.
 - [ ] Validate số tiền > 0.
@@ -423,12 +423,12 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Chọn account cash.
-- [ ] Nhập số dư thực tế.
+- [x] Chọn account cash.
+- [x] Nhập số dư thực tế.
 - [ ] Hiển thị chênh lệch.
 - [ ] Bắt buộc ghi lý do nếu chênh lệch.
 - [ ] Tạo transaction adjustment.
-- [ ] Tạo BalanceLog.
+- [x] Tạo BalanceLog.
 
 **Acceptance criteria:**
 
@@ -442,7 +442,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 **Checklist:**
 
 - [ ] Danh sách pending transactions.
-- [ ] Chọn category.
+- [x] Chọn category.
 - [ ] Lưu status categorized.
 - [ ] Emit event ExpenseCategorized.
 - [ ] Cập nhật báo cáo/hạn mức liên quan.
@@ -519,8 +519,8 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Acceptance criteria:**
 
-- [ ] Không hardcode token trong app.
-- [ ] User có thể xóa token bất kỳ lúc nào.
+- [x] Không hardcode token trong app.
+- [x] User có thể xóa token bất kỳ lúc nào.
 
 ### T-0402 - Tạo entity SyncState `[P0][CORE][SYNC]`
 
@@ -528,18 +528,18 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity `SyncState`.
-- [ ] Source: sepay_api, webhook_endpoint, import_file.
-- [ ] Account id.
-- [ ] Last synced at.
-- [ ] Last cursor/since id.
-- [ ] Last transaction date.
-- [ ] Status và last error.
+- [x] Entity `SyncState`.
+- [x] Source: sepay_api, webhook_endpoint, import_file.
+- [x] Account id.
+- [x] Last synced at.
+- [x] Last cursor/since id.
+- [x] Last transaction date.
+- [x] Status và last error.
 
 **Acceptance criteria:**
 
-- [ ] App biết lần sync cuối.
-- [ ] Sync lỗi có thông tin để hiển thị cho user.
+- [x] App biết lần sync cuối.
+- [x] Sync lỗi có thông tin để hiển thị cho user.
 
 ### T-0403 - SePay API client `[P0][SYNC]`
 
@@ -547,17 +547,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tạo HTTP client.
-- [ ] Gắn token từ secure storage.
-- [ ] Gọi endpoint danh sách giao dịch.
-- [ ] Hỗ trợ filter ngày/account nếu API cho phép.
-- [ ] Hỗ trợ pagination/cursor/since id nếu API cho phép.
-- [ ] Parse response an toàn.
+- [x] Tạo HTTP client.
+- [x] Gắn token từ secure storage.
+- [x] Gọi endpoint danh sách giao dịch.
+- [x] Hỗ trợ filter ngày/account nếu API cho phép.
+- [x] Hỗ trợ pagination/cursor/since id nếu API cho phép.
+- [x] Parse response an toàn.
 
 **Acceptance criteria:**
 
-- [ ] App lấy được danh sách giao dịch từ SePay bằng token user.
-- [ ] Lỗi API hiển thị thân thiện.
+- [x] App lấy được danh sách giao dịch từ SePay bằng token user.
+- [x] Lỗi API hiển thị thân thiện.
 
 ### T-0404 - Manual sync button `[P0][FE][SYNC]`
 
@@ -565,16 +565,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Nút Đồng bộ trên Dashboard/Settings.
-- [ ] Hiển thị loading.
-- [ ] Gọi SePaySyncUseCase.
-- [ ] Hiển thị số giao dịch mới import.
-- [ ] Hiển thị lỗi nếu token/mạng lỗi.
+- [x] Nút Đồng bộ trên Dashboard/Settings.
+- [x] Hiển thị loading.
+- [x] Gọi SePaySyncUseCase.
+- [x] Hiển thị số giao dịch mới import.
+- [x] Hiển thị lỗi nếu token/mạng lỗi.
 
 **Acceptance criteria:**
 
-- [ ] Bấm sync import được giao dịch mới.
-- [ ] Bấm lại không tạo trùng.
+- [x] Bấm sync import được giao dịch mới.
+- [x] Bấm lại không tạo trùng.
 
 ### T-0405 - Auto sync khi mở app `[P0][SYNC][FE]`
 
@@ -604,7 +604,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [ ] Deduplicate.
 - [ ] Tạo transaction source sepay_api.
 - [ ] Cộng balance.
-- [ ] Tạo BalanceLog.
+- [x] Tạo BalanceLog.
 
 **Acceptance criteria:**
 
@@ -621,7 +621,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [ ] Status pending_category nếu chưa đoán được category.
 - [ ] Deduplicate.
 - [ ] Trừ balance.
-- [ ] Tạo BalanceLog.
+- [x] Tạo BalanceLog.
 - [ ] Emit ExpenseDetected.
 
 **Acceptance criteria:**
@@ -672,9 +672,9 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Entity Budget.
+- [x] Entity Budget.
 - [ ] Unique category/month.
-- [ ] Limit amount.
+- [x] Limit amount.
 - [ ] Warning threshold percent.
 - [ ] Notification enabled.
 - [ ] DAO CRUD.
@@ -692,7 +692,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 - [ ] List budget theo tháng.
 - [ ] Tạo/sửa budget.
-- [ ] Chọn category.
+- [x] Chọn category.
 - [ ] Nhập limit.
 - [ ] Chọn threshold.
 - [ ] Hiển thị percent used.
@@ -801,7 +801,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [ ] Tổng chi tháng.
 - [ ] Chi theo category.
 - [ ] Pending transactions count/list.
-- [ ] Budget status.
+- [x] Budget status.
 - [ ] Goal ưu tiên.
 
 **Acceptance criteria:**
@@ -842,8 +842,8 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Acceptance criteria:**
 
-- [ ] User hiểu tình hình tài chính trong một màn.
-- [ ] Dashboard dùng được offline.
+- [x] User hiểu tình hình tài chính trong một màn.
+- [x] Dashboard dùng được offline.
 
 ### T-0704 - Biểu đồ báo cáo `[P1][FE]`
 
@@ -851,14 +851,14 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Pie chart category.
-- [ ] Bar chart tháng.
-- [ ] Balance trend chart.
-- [ ] Progress budget/goal.
+- [x] Pie/progress chart category.
+- [x] Bar chart tháng.
+- [x] Balance trend chart.
+- [x] Progress budget/goal.
 
 **Acceptance criteria:**
 
-- [ ] Biểu đồ rõ trên màn hình nhỏ.
+- [x] Biểu đồ rõ trên màn hình nhỏ.
 
 ---
 
@@ -892,13 +892,13 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [x] Update progress.
 - [x] Validate amount.
 - [x] Tự completed khi đạt 100%.
-- [ ] Emit GoalCompleted.
+- [x] Emit GoalCompleted.
 - [x] Không làm lệch account balance nếu chỉ là tracking.
 
 **Acceptance criteria:**
 
 - [x] Goal đạt target chuyển completed.
-- [ ] Notification có thể được kích hoạt.
+- [x] Notification có thể được kích hoạt.
 
 ### T-0803 - Màn hình mục tiêu `[P0][FE]`
 
@@ -922,14 +922,14 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Link transaction với goal.
-- [ ] Chống link trùng.
-- [ ] Cộng progress.
-- [ ] Unlink trả progress đúng.
+- [x] Link transaction với goal.
+- [x] Chống link trùng.
+- [x] Cộng progress.
+- [x] Unlink trả progress đúng.
 
 **Acceptance criteria:**
 
-- [ ] Goal progress thay đổi đúng khi link/unlink.
+- [x] Goal progress thay đổi đúng khi link/unlink.
 
 ---
 
@@ -941,17 +941,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Account settings.
-- [ ] SePay token settings.
-- [ ] Sync settings.
-- [ ] Notification settings.
-- [ ] Security settings.
-- [ ] Backup/export entry.
-- [ ] Webhook URL optional entry.
+- [x] Account settings.
+- [x] SePay token settings.
+- [x] Sync settings.
+- [x] Notification settings.
+- [x] Security settings.
+- [x] Backup/export entry.
+- [x] Webhook URL optional entry.
 
 **Acceptance criteria:**
 
-- [ ] User tìm được các cài đặt chính.
+- [x] User tìm được các cài đặt chính.
 
 ### T-0902 - Khóa app PIN/biometric `[P1][SEC][FE]`
 
@@ -1005,15 +1005,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Nêu dữ liệu tài chính lưu trên thiết bị.
-- [ ] Nêu token SePay do user cung cấp.
-- [ ] Nêu không có server trung tâm trong MVP.
-- [ ] Nêu webhook URL là hạ tầng riêng của user.
-- [ ] Nêu cách xóa dữ liệu/token.
+- [x] Nêu dữ liệu tài chính lưu trên thiết bị.
+- [x] Nêu token SePay do user cung cấp.
+- [x] Nêu không có server trung tâm trong MVP.
+- [x] Nêu webhook URL là hạ tầng riêng của user.
+- [x] Nêu cách xóa dữ liệu/token.
 
 **Acceptance criteria:**
 
-- [ ] User hiểu app xử lý dữ liệu cá nhân thế nào.
+- [x] User hiểu app xử lý dữ liệu cá nhân thế nào.
 
 ---
 
@@ -1025,16 +1025,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Form nhập webhook URL.
-- [ ] Form nhập secret nếu có.
-- [ ] Validate URL format.
-- [ ] Copy URL để dán sang SePay.
-- [ ] Giải thích app không vận hành URL này thay user.
+- [x] Form nhập webhook URL.
+- [x] Form nhập secret nếu có.
+- [x] Validate URL format.
+- [x] Copy URL để dán sang SePay.
+- [x] Giải thích app không vận hành URL này thay user.
 
 **Acceptance criteria:**
 
-- [ ] User lưu/xóa được webhook URL.
-- [ ] UI giải thích rõ đây là hạ tầng riêng của user.
+- [x] User lưu/xóa được webhook URL.
+- [x] UI giải thích rõ đây là hạ tầng riêng của user.
 
 ### T-1002 - External webhook endpoint sync adapter `[P2][SYNC]`
 
@@ -1044,7 +1044,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 - [ ] Cấu hình API đọc dữ liệu từ endpoint riêng.
 - [ ] Cấu hình auth/secret.
-- [ ] Fetch transaction list.
+- [x] Fetch transaction list.
 - [ ] Đi qua TransactionImportPipeline.
 - [ ] Lưu SyncState riêng source webhook_endpoint.
 
@@ -1076,57 +1076,57 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Income cộng balance.
-- [ ] Expense trừ balance.
-- [ ] Adjustment cập nhật balance.
-- [ ] BalanceLog tạo đúng.
-- [ ] Room transaction rollback khi lỗi.
+- [x] Income cộng balance.
+- [x] Expense trừ balance.
+- [x] Adjustment cập nhật balance.
+- [x] BalanceLog tạo đúng.
+- [x] Room transaction rollback khi lỗi.
 
 **Acceptance criteria:**
 
-- [ ] Các case số dư chính pass.
+- [x] Các case số dư chính pass.
 
 ### T-1102 - Unit test ImportPipeline dedup `[P0][QA]`
 
 **Checklist:**
 
-- [ ] Import transaction mới.
-- [ ] Import duplicate external id.
-- [ ] Import duplicate reference/amount/date/account.
-- [ ] Balance không đổi lần hai.
-- [ ] Duplicate được ghi nhận hoặc bỏ qua đúng rule.
+- [x] Import transaction mới.
+- [x] Import duplicate external id.
+- [x] Import duplicate reference/amount/date/account.
+- [x] Balance không đổi lần hai.
+- [x] Duplicate được ghi nhận hoặc bỏ qua đúng rule.
 
 **Acceptance criteria:**
 
-- [ ] Không nguồn sync nào cộng/trừ trùng.
+- [x] Không nguồn sync nào cộng/trừ trùng.
 
 ### T-1103 - Unit test BudgetChecker `[P0][QA]`
 
 **Checklist:**
 
-- [ ] Dưới ngưỡng không cảnh báo.
-- [ ] Vượt threshold tạo warning.
-- [ ] Vượt limit tạo exceeded.
-- [ ] Ignored transaction không tính.
-- [ ] Không spam cùng ngưỡng.
+- [x] Dưới ngưỡng không cảnh báo.
+- [x] Vượt threshold tạo warning.
+- [x] Vượt limit tạo exceeded.
+- [x] Ignored transaction không tính.
+- [x] Không spam cùng ngưỡng.
 
 **Acceptance criteria:**
 
-- [ ] Budget event đúng rule.
+- [x] Budget event đúng rule.
 
 ### T-1104 - Test SePay sync `[P0][QA][SYNC]`
 
 **Checklist:**
 
-- [ ] Token thiếu/sai.
-- [ ] Mất mạng.
-- [ ] API trả rỗng.
-- [ ] API trả nhiều page.
-- [ ] Sync lại không trùng.
+- [x] Token thiếu/sai.
+- [x] Mất mạng.
+- [x] API trả rỗng.
+- [x] API trả nhiều page.
+- [x] Sync lại không trùng.
 
 **Acceptance criteria:**
 
-- [ ] Sync lỗi không làm hỏng local data.
+- [x] Sync lỗi không làm hỏng local data.
 
 ### T-1105 - UI smoke test MVP `[P0][QA][FE]`
 
@@ -1248,6 +1248,58 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 9. T-0801 → T-0803.
 10. T-0901 và T-0905.
 11. T-1101 → T-1106.
+
+---
+
+## M12 - Event model chuẩn hóa
+
+### T-1201 - Event registry tập trung `[P0][CORE]`
+
+**Mục tiêu:** Mọi tính năng create/update/delete/system effect đều có event khai báo tập trung.
+
+**Checklist:**
+
+- [x] Tạo `DomainEventType` làm registry duy nhất.
+- [x] Gắn feature/action cho từng event.
+- [x] Bao phủ account/category/transaction/budget/goal/sync/settings/security/webhook/backup.
+- [x] Không dùng string event rải rác trong code.
+
+**Acceptance criteria:**
+
+- [x] Dev muốn thêm/sửa/xóa tính năng phải thêm event tại một nơi.
+
+### T-1202 - Local event store `[P0][CORE]`
+
+**Mục tiêu:** Lưu event local để audit/retry side-effect.
+
+**Checklist:**
+
+- [x] Entity `DomainEvent`.
+- [x] DAO insert/list/pending/mark dispatched/mark failed.
+- [x] Migration tạo bảng `domain_events`.
+- [x] Converter cho `DomainEventType`.
+
+**Acceptance criteria:**
+
+- [x] Event được lưu trong Room local DB.
+
+### T-1203 - Publish event trong luồng domain chính `[P0][CORE]`
+
+**Mục tiêu:** Các thao tác quan trọng phát event thay vì xử lý rải rác.
+
+**Checklist:**
+
+- [x] Account create/balance change.
+- [x] Transaction create/import/duplicate/update.
+- [x] Budget create/update/warning/exceeded.
+- [x] Goal create/progress/completed/pause/resume/link/unlink.
+- [x] Settings/security/webhook publish event.
+- [x] Sync started/completed/failed publish event.
+
+**Acceptance criteria:**
+
+- [x] Luồng core có event audit thống nhất.
+
 
 ## Definition of Done chung
 

@@ -2,6 +2,8 @@
 
 import com.spendingapp.core.database.SpendingDatabase
 import com.spendingapp.core.database.entity.SyncStateEntity
+import com.spendingapp.core.event.DomainEventPublisher
+import com.spendingapp.core.event.DomainEventType
 import com.spendingapp.core.model.AccountType
 import com.spendingapp.core.model.SyncStatus
 import com.spendingapp.core.model.TransactionSource
@@ -10,8 +12,9 @@ import java.time.LocalDate
 
 class SePaySyncService(
     private val database: SpendingDatabase,
-    private val apiClient: SePayApiClient,
+    private val apiClient: SePayTransactionsClient,
     private val importPipeline: TransactionImportPipeline,
+    private val eventPublisher: DomainEventPublisher,
 ) {
     suspend fun sync(token: String, daysBack: Long = 30): SePaySyncResult {
         val bankAccount = database.accountDao().getFirstBankAccount()
@@ -25,6 +28,7 @@ class SePaySyncService(
                 updatedAt = System.currentTimeMillis(),
             ),
         )
+        eventPublisher.publish(DomainEventType.SYNC_STARTED, "sync", bankAccount.id, actionId = source)
 
         return try {
             val transactions = apiClient.fetchTransactions(
@@ -64,6 +68,13 @@ class SePaySyncService(
                     updatedAt = System.currentTimeMillis(),
                 ),
             )
+            eventPublisher.publish(
+                DomainEventType.SYNC_COMPLETED,
+                "sync",
+                bankAccount.id,
+                actionId = source,
+                payloadJson = """{"imported":$imported,"duplicated":$duplicated,"totalFetched":${transactions.size}}""",
+            )
             SePaySyncResult(imported = imported, duplicated = duplicated, totalFetched = transactions.size)
         } catch (error: Throwable) {
             database.syncStateDao().upsert(
@@ -74,6 +85,13 @@ class SePaySyncService(
                     lastError = error.message,
                     updatedAt = System.currentTimeMillis(),
                 ),
+            )
+            eventPublisher.publish(
+                DomainEventType.SYNC_FAILED,
+                "sync",
+                bankAccount.id,
+                actionId = source,
+                payloadJson = error.message?.take(160),
             )
             throw error
         }

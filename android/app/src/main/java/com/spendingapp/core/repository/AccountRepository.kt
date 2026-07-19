@@ -5,12 +5,15 @@ import com.spendingapp.core.database.SpendingDatabase
 import com.spendingapp.core.database.entity.AccountEntity
 import com.spendingapp.core.database.entity.BalanceLogEntity
 import com.spendingapp.core.domain.BalanceService
+import com.spendingapp.core.event.DomainEventPublisher
+import com.spendingapp.core.event.DomainEventType
 import com.spendingapp.core.model.AccountType
 import kotlinx.coroutines.flow.Flow
 
 class AccountRepository(
     private val database: SpendingDatabase,
     private val balanceService: BalanceService,
+    private val eventPublisher: DomainEventPublisher,
 ) {
     fun observeAccounts(): Flow<List<AccountEntity>> = database.accountDao().observeActiveAccounts()
 
@@ -41,7 +44,9 @@ class AccountRepository(
                         reason = "initial_balance",
                     ),
                 )
+                eventPublisher.publish(DomainEventType.ACCOUNT_BALANCE_CHANGED, "account", accountId)
             }
+            eventPublisher.publish(DomainEventType.ACCOUNT_CREATED, "account", accountId)
             accountId
         }
     }
@@ -55,5 +60,6 @@ class AccountRepository(
             transactionId = null,
             reason = reason.trim(),
         )
+        eventPublisher.publish(DomainEventType.ACCOUNT_BALANCE_CHANGED, "account", accountId)
     }
 }

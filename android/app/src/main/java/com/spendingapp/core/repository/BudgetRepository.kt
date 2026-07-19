@@ -3,6 +3,8 @@
 import com.spendingapp.core.database.SpendingDatabase
 import com.spendingapp.core.database.entity.BudgetEntity
 import com.spendingapp.core.database.entity.CategoryEntity
+import com.spendingapp.core.event.DomainEventPublisher
+import com.spendingapp.core.event.DomainEventType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.YearMonth
@@ -10,6 +12,7 @@ import java.time.ZoneId
 
 class BudgetRepository(
     private val database: SpendingDatabase,
+    private val eventPublisher: DomainEventPublisher,
 ) {
     fun observeBudgetOverview(month: String = currentMonth()): Flow<List<BudgetOverviewItem>> = combine(
         database.budgetDao().observeByMonth(month),
@@ -38,7 +41,7 @@ class BudgetRepository(
         require(warningThresholdPercent in 1..100) { "Ngưỡng cảnh báo phải từ 1 đến 100" }
         val existing = database.budgetDao().getByCategoryAndMonth(categoryId, month)
         if (existing == null) {
-            database.budgetDao().insert(
+            val budgetId = database.budgetDao().insert(
                 BudgetEntity(
                     categoryId = categoryId,
                     month = month,
@@ -46,6 +49,7 @@ class BudgetRepository(
                     warningThresholdPercent = warningThresholdPercent,
                 ),
             )
+            eventPublisher.publish(DomainEventType.BUDGET_CREATED, "budget", budgetId)
         } else {
             database.budgetDao().update(
                 existing.copy(
@@ -54,6 +58,7 @@ class BudgetRepository(
                     updatedAt = System.currentTimeMillis(),
                 ),
             )
+            eventPublisher.publish(DomainEventType.BUDGET_UPDATED, "budget", existing.id)
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿package com.spendingapp.core.database
 
 import androidx.room.TypeConverter
+import com.spendingapp.core.event.DomainEventType
 import com.spendingapp.core.model.AccountType
 import com.spendingapp.core.model.CategoryType
 import com.spendingapp.core.model.GoalPriority
@@ -34,4 +35,7 @@ class DomainConverters {
 
     @TypeConverter fun syncStatusToString(value: SyncStatus): String = value.name
     @TypeConverter fun stringToSyncStatus(value: String): SyncStatus = SyncStatus.valueOf(value)
+
+    @TypeConverter fun domainEventTypeToString(value: DomainEventType): String = value.name
+    @TypeConverter fun stringToDomainEventType(value: String): DomainEventType = DomainEventType.valueOf(value)
 }

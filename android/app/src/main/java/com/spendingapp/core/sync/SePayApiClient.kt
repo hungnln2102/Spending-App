@@ -14,16 +14,25 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class SePayApiClient(
-    private val httpClient: OkHttpClient = OkHttpClient(),
-) {
-    private val json = Json { ignoreUnknownKeys = true }
-
+interface SePayTransactionsClient {
     fun fetchTransactions(
         token: String,
         fromDate: LocalDate? = null,
         toDate: LocalDate? = null,
         accountNumber: String? = null,
+    ): List<SePayTransactionDto>
+}
+
+class SePayApiClient(
+    private val httpClient: OkHttpClient = OkHttpClient(),
+) : SePayTransactionsClient {
+    private val json = Json { ignoreUnknownKeys = true }
+
+    override fun fetchTransactions(
+        token: String,
+        fromDate: LocalDate?,
+        toDate: LocalDate?,
+        accountNumber: String?,
     ): List<SePayTransactionDto> {
         val baseUrl = "https://my.sepay.vn/userapi/transactions/list".toHttpUrl()
         val urlBuilder = baseUrl.newBuilder()

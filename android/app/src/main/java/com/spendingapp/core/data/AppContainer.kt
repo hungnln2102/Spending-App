@@ -6,9 +6,14 @@ import com.spendingapp.core.database.DatabaseMigrations
 import com.spendingapp.core.database.SpendingDatabase
 import com.spendingapp.core.domain.BalanceService
 import com.spendingapp.core.domain.BudgetChecker
+import com.spendingapp.core.event.DomainEventPublisher
+import com.spendingapp.core.notification.CashReminderScheduler
+import com.spendingapp.core.notification.LocalNotificationService
 import com.spendingapp.core.repository.AccountRepository
 import com.spendingapp.core.repository.BudgetRepository
 import com.spendingapp.core.repository.GoalRepository
+import com.spendingapp.core.repository.NotificationSettingsRepository
+import com.spendingapp.core.repository.ReportingRepository
 import com.spendingapp.core.repository.TransactionRepository
 import com.spendingapp.core.repository.WebhookSettingsRepository
 import com.spendingapp.core.security.SecureTokenStorage
@@ -22,22 +27,30 @@ class AppContainer(context: Context) {
         context.applicationContext,
         SpendingDatabase::class.java,
         "spending-app.db",
-    ).addMigrations(DatabaseMigrations.MIGRATION_1_2).build()
+    ).addMigrations(DatabaseMigrations.MIGRATION_1_2, DatabaseMigrations.MIGRATION_2_3, DatabaseMigrations.MIGRATION_3_4).build()
 
     val balanceService = BalanceService(database)
     val budgetChecker = BudgetChecker(database)
-    val transactionImportPipeline = TransactionImportPipeline(database, balanceService, budgetChecker)
+    val domainEventPublisher = DomainEventPublisher(database)
+    val transactionImportPipeline = TransactionImportPipeline(database, balanceService, budgetChecker, domainEventPublisher)
     val databaseSeeder = DatabaseSeeder(database)
-    val transactionRepository = TransactionRepository(database, transactionImportPipeline)
-    val accountRepository = AccountRepository(database, balanceService)
-    val budgetRepository = BudgetRepository(database)
-    val goalRepository = GoalRepository(database)
+    val transactionRepository = TransactionRepository(database, transactionImportPipeline, domainEventPublisher)
+    val accountRepository = AccountRepository(database, balanceService, domainEventPublisher)
+    val budgetRepository = BudgetRepository(database, domainEventPublisher)
+    val goalRepository = GoalRepository(database, domainEventPublisher)
+    val reportingRepository = ReportingRepository(database)
+    val notificationSettingsRepository = NotificationSettingsRepository(context)
+    val localNotificationService = LocalNotificationService(context.applicationContext, notificationSettingsRepository)
+    val cashReminderScheduler = CashReminderScheduler(context.applicationContext)
     val secureTokenStorage = SecureTokenStorage(context)
     val sePayApiClient = SePayApiClient()
-    val sePaySyncService = SePaySyncService(database, sePayApiClient, transactionImportPipeline)
+    val sePaySyncService = SePaySyncService(database, sePayApiClient, transactionImportPipeline, domainEventPublisher)
     val webhookSettingsRepository = WebhookSettingsRepository(context)
     val webhookEndpointTester = WebhookEndpointTester()
 }
+
+
+
 
 
 

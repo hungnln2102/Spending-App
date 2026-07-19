@@ -12,6 +12,7 @@ import com.spendingapp.core.model.TransactionType
     indices = [
         Index(value = ["accountId"]),
         Index(value = ["categoryId"]),
+        Index(value = ["linkedGoalId"]),
         Index(value = ["externalTransactionId", "source"], unique = false),
     ],
 )
@@ -19,6 +20,7 @@ data class TransactionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val accountId: Long,
     val categoryId: Long? = null,
+    val linkedGoalId: Long? = null,
     val type: TransactionType,
     val status: TransactionStatus,
     val source: TransactionSource,

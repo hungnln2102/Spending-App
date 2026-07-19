@@ -16,8 +16,17 @@ class SpendingApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        container.localNotificationService.createChannels()
+        val notificationSettings = container.notificationSettingsRepository.getSettings()
+        if (notificationSettings.cashReminderEnabled) {
+            container.cashReminderScheduler.schedule(notificationSettings.cashReminderIntervalDays)
+        } else {
+            container.cashReminderScheduler.cancel()
+        }
         applicationScope.launch {
             container.databaseSeeder.seedIfNeeded()
         }
     }
 }
+
+
