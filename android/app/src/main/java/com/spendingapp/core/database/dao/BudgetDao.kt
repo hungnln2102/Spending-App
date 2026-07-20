@@ -1,6 +1,7 @@
 ﻿package com.spendingapp.core.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -32,6 +33,10 @@ interface BudgetDao {
 
     @Update
     suspend fun update(budget: BudgetEntity)
+    @Delete
+    suspend fun delete(budget: BudgetEntity)
+
 }
+
 
 

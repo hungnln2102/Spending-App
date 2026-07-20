@@ -181,14 +181,14 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 **Checklist:**
 
 - [x] Tạo settings repository.
-- [ ] Lưu tùy chọn theme nếu có.
+- [x] Lưu tùy chọn theme nếu có.
 - [x] Lưu tùy chọn sync.
 - [x] Lưu tùy chọn notification.
 - [x] Không lưu token nhạy cảm trực tiếp bằng plain DataStore.
 
 **Acceptance criteria:**
 
-- [ ] Settings đọc/ghi được qua Flow.
+- [x] Settings đọc/ghi được qua Flow.
 - [x] Token/secret không lưu plain text trong DataStore.
 
 ### T-0105 - Thiết lập bảo mật secret local `[P0][SEC]`
@@ -296,7 +296,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [x] Field source: manual, sepay_api, webhook_endpoint, import_file.
 - [x] Field external id/reference.
 - [x] Field occurredAt.
-- [ ] DAO create/update/list/filter.
+- [x] DAO create/update/list/filter.
 
 **Acceptance criteria:**
 
@@ -386,16 +386,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Danh sách giao dịch mới nhất trước.
-- [ ] Hiển thị số tiền, ngày, nguồn tiền, hạng mục.
-- [ ] Phân biệt thu/chi.
-- [ ] Hiển thị trạng thái chưa phân loại.
-- [ ] Loading/empty/error state.
+- [x] Danh sách giao dịch mới nhất trước.
+- [x] Hiển thị số tiền, ngày, nguồn tiền, hạng mục.
+- [x] Phân biệt thu/chi.
+- [x] Hiển thị trạng thái chưa phân loại.
+- [x] Loading/empty/error state.
 
 **Acceptance criteria:**
 
-- [ ] User xem được lịch sử offline.
-- [ ] Giao dịch pending dễ nhận biết.
+- [x] User xem được lịch sử offline.
+- [x] Giao dịch pending dễ nhận biết.
 
 ### T-0302 - Form thêm giao dịch thủ công `[P0][FE][CORE]`
 
@@ -403,19 +403,19 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Chọn loại giao dịch.
+- [x] Chọn loại giao dịch.
 - [x] Chọn account.
-- [ ] Nhập số tiền.
+- [x] Nhập số tiền.
 - [x] Chọn category.
-- [ ] Chọn thời gian.
-- [ ] Nhập ghi chú.
-- [ ] Validate số tiền > 0.
+- [x] Chọn thời gian.
+- [x] Nhập ghi chú.
+- [x] Validate số tiền > 0.
 
 **Acceptance criteria:**
 
-- [ ] Expense trừ đúng balance.
-- [ ] Income cộng đúng balance.
-- [ ] Có BalanceLog.
+- [x] Expense trừ đúng balance.
+- [x] Income cộng đúng balance.
+- [x] Có BalanceLog.
 
 ### T-0303 - Form cập nhật tiền mặt `[P0][FE][CORE]`
 
@@ -425,15 +425,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 - [x] Chọn account cash.
 - [x] Nhập số dư thực tế.
-- [ ] Hiển thị chênh lệch.
-- [ ] Bắt buộc ghi lý do nếu chênh lệch.
-- [ ] Tạo transaction adjustment.
+- [x] Hiển thị chênh lệch.
+- [x] Bắt buộc ghi lý do nếu chênh lệch.
+- [x] Tạo transaction adjustment.
 - [x] Tạo BalanceLog.
 
 **Acceptance criteria:**
 
-- [ ] Số dư tiền mặt cập nhật đúng.
-- [ ] Lịch sử điều chỉnh rõ ràng.
+- [x] Số dư tiền mặt cập nhật đúng.
+- [x] Lịch sử điều chỉnh rõ ràng.
 
 ### T-0304 - Phân loại giao dịch pending `[P0][FE][CORE]`
 
@@ -441,16 +441,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Danh sách pending transactions.
+- [x] Danh sách pending transactions.
 - [x] Chọn category.
-- [ ] Lưu status categorized.
-- [ ] Emit event ExpenseCategorized.
-- [ ] Cập nhật báo cáo/hạn mức liên quan.
+- [x] Lưu status categorized.
+- [x] Emit event ExpenseCategorized.
+- [x] Cập nhật báo cáo/hạn mức liên quan.
 
 **Acceptance criteria:**
 
-- [ ] Giao dịch pending chuyển thành categorized.
-- [ ] Budget checker chạy sau phân loại.
+- [x] Giao dịch pending chuyển thành categorized.
+- [x] Budget checker chạy sau phân loại.
 
 ### T-0305 - Bộ lọc giao dịch `[P1][FE]`
 
@@ -458,16 +458,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Filter theo thời gian.
-- [ ] Filter theo account.
-- [ ] Filter theo category.
-- [ ] Filter theo type.
-- [ ] Filter theo status.
+- [x] Filter theo thời gian.
+- [x] Filter theo account.
+- [x] Filter theo category.
+- [x] Filter theo type.
+- [x] Filter theo status.
 
 **Acceptance criteria:**
 
-- [ ] User lọc được giao dịch tháng hiện tại.
-- [ ] Có reset filter.
+- [x] User lọc được giao dịch tháng hiện tại.
+- [x] Có reset filter.
 
 ### T-0306 - Sửa giao dịch `[P1][FE][CORE]`
 
@@ -475,15 +475,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Sửa amount/date/category/note.
-- [ ] Nếu amount/account đổi, tính lại balance bằng service.
-- [ ] Nếu category/date đổi, tính lại budget/report.
-- [ ] Tạo log điều chỉnh.
+- [x] Sửa amount/date/category/note.
+- [x] Nếu amount/account đổi, tính lại balance bằng service.
+- [x] Nếu category/date đổi, tính lại budget/report.
+- [x] Tạo log điều chỉnh.
 
 **Acceptance criteria:**
 
-- [ ] Sửa giao dịch không làm sai số dư.
-- [ ] Có audit trail đủ dùng.
+- [x] Sửa giao dịch không làm sai số dư.
+- [x] Có audit trail đủ dùng.
 
 ### T-0307 - Đánh dấu bỏ qua giao dịch `[P1][FE][CORE]`
 
@@ -491,15 +491,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Action ignore.
-- [ ] Status ignored.
-- [ ] Không xóa transaction.
-- [ ] Không tính vào report/budget.
+- [x] Action ignore.
+- [x] Status ignored.
+- [x] Không xóa transaction.
+- [x] Không tính vào report/budget.
 
 **Acceptance criteria:**
 
-- [ ] Giao dịch ignored vẫn xem lại được.
-- [ ] Báo cáo không tính ignored.
+- [x] Giao dịch ignored vẫn xem lại được.
+- [x] Báo cáo không tính ignored.
 
 ---
 
@@ -511,11 +511,11 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Form nhập token.
-- [ ] Giải thích token lưu trên thiết bị.
-- [ ] Nút kiểm tra kết nối.
-- [ ] Nút xóa token.
-- [ ] Lưu token bằng secure storage.
+- [x] Form nhập token.
+- [x] Giải thích token lưu trên thiết bị.
+- [x] Nút kiểm tra kết nối.
+- [x] Nút xóa token.
+- [x] Lưu token bằng secure storage.
 
 **Acceptance criteria:**
 
@@ -582,16 +582,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Kiểm tra có token SePay.
-- [ ] Kiểm tra có mạng.
-- [ ] Kiểm tra đã quá khoảng sync tối thiểu.
-- [ ] Chạy sync không block UI.
-- [ ] Lưu trạng thái sync.
+- [x] Kiểm tra có token SePay.
+- [x] Kiểm tra có mạng.
+- [x] Kiểm tra đã quá khoảng sync tối thiểu.
+- [x] Chạy sync không block UI.
+- [x] Lưu trạng thái sync.
 
 **Acceptance criteria:**
 
-- [ ] Mở app có mạng sẽ tự kéo dữ liệu thiếu theo rule.
-- [ ] Không spam API khi mở app liên tục.
+- [x] Mở app có mạng sẽ tự kéo dữ liệu thiếu theo rule.
+- [x] Không spam API khi mở app liên tục.
 
 ### T-0406 - Import giao dịch SePay tiền vào `[P0][SYNC][CORE]`
 
@@ -599,17 +599,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Normalize payload SePay thành income.
-- [ ] Map vào account bank local.
-- [ ] Deduplicate.
-- [ ] Tạo transaction source sepay_api.
-- [ ] Cộng balance.
+- [x] Normalize payload SePay thành income.
+- [x] Map vào account bank local.
+- [x] Deduplicate.
+- [x] Tạo transaction source sepay_api.
+- [x] Cộng balance.
 - [x] Tạo BalanceLog.
 
 **Acceptance criteria:**
 
-- [ ] Tiền vào làm tăng số dư đúng.
-- [ ] Sync lại không cộng lần hai.
+- [x] Tiền vào làm tăng số dư đúng.
+- [x] Sync lại không cộng lần hai.
 
 ### T-0407 - Import giao dịch SePay tiền ra `[P0][SYNC][CORE]`
 
@@ -617,17 +617,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Normalize payload SePay thành expense.
-- [ ] Status pending_category nếu chưa đoán được category.
-- [ ] Deduplicate.
-- [ ] Trừ balance.
+- [x] Normalize payload SePay thành expense.
+- [x] Status pending_category nếu chưa đoán được category.
+- [x] Deduplicate.
+- [x] Trừ balance.
 - [x] Tạo BalanceLog.
-- [ ] Emit ExpenseDetected.
+- [x] Emit ExpenseDetected.
 
 **Acceptance criteria:**
 
-- [ ] Tiền ra làm giảm số dư đúng.
-- [ ] Giao dịch xuất hiện trong pending category.
+- [x] Tiền ra làm giảm số dư đúng.
+- [x] Giao dịch xuất hiện trong pending category.
 
 ### T-0408 - Background sync bằng WorkManager `[P1][SYNC]`
 
@@ -635,16 +635,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Worker sync SePay.
-- [ ] Chỉ chạy khi có network.
-- [ ] Tùy chọn chỉ Wi-Fi.
-- [ ] Khoảng sync 6h/12h/24h.
-- [ ] Backoff khi lỗi.
+- [x] Worker sync SePay.
+- [x] Chỉ chạy khi có network.
+- [x] Tùy chọn chỉ Wi-Fi.
+- [x] Khoảng sync 6h/12h/24h.
+- [x] Backoff khi lỗi.
 
 **Acceptance criteria:**
 
 - [ ] Sync nền hoạt động trên thiết bị test.
-- [ ] App không hứa realtime tuyệt đối.
+- [x] App không hứa realtime tuyệt đối.
 
 ---
 
@@ -656,15 +656,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] List category.
-- [ ] Create category.
-- [ ] Update name/icon/color.
-- [ ] Archive category.
-- [ ] Ẩn archived khỏi lựa chọn mặc định.
+- [x] List category.
+- [x] Create category.
+- [x] Update name/icon/color.
+- [x] Archive category.
+- [x] Ẩn archived khỏi lựa chọn mặc định.
 
 **Acceptance criteria:**
 
-- [ ] User tạo/sửa/ẩn hạng mục được.
+- [x] User tạo/sửa/ẩn hạng mục được.
 
 ### T-0502 - Tạo entity Budget `[P0][CORE]`
 
@@ -673,16 +673,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 **Checklist:**
 
 - [x] Entity Budget.
-- [ ] Unique category/month.
+- [x] Unique category/month.
 - [x] Limit amount.
-- [ ] Warning threshold percent.
-- [ ] Notification enabled.
-- [ ] DAO CRUD.
+- [x] Warning threshold percent.
+- [x] Notification enabled.
+- [x] DAO CRUD.
 
 **Acceptance criteria:**
 
-- [ ] Mỗi category có một budget mỗi tháng.
-- [ ] Budget tháng cũ giữ lịch sử.
+- [x] Mỗi category có một budget mỗi tháng.
+- [x] Budget tháng cũ giữ lịch sử.
 
 ### T-0503 - Màn hình hạn mức `[P0][FE]`
 
@@ -690,17 +690,17 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] List budget theo tháng.
-- [ ] Tạo/sửa budget.
+- [x] List budget theo tháng.
+- [x] Tạo/sửa budget.
 - [x] Chọn category.
-- [ ] Nhập limit.
-- [ ] Chọn threshold.
-- [ ] Hiển thị percent used.
+- [x] Nhập limit.
+- [x] Chọn threshold.
+- [x] Hiển thị percent used.
 
 **Acceptance criteria:**
 
-- [ ] User đặt được hạn mức.
-- [ ] UI hiển thị gần vượt/vượt rõ ràng.
+- [x] User đặt được hạn mức.
+- [x] UI hiển thị gần vượt/vượt rõ ràng.
 
 ### T-0504 - BudgetChecker service `[P0][CORE]`
 
@@ -730,15 +730,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Bật/tắt toàn bộ notification.
-- [ ] Bật/tắt budget notification.
-- [ ] Bật/tắt goal notification.
-- [ ] Bật/tắt nhắc cập nhật tiền mặt.
+- [x] Bật/tắt toàn bộ notification.
+- [x] Bật/tắt budget notification.
+- [x] Bật/tắt goal notification.
+- [x] Bật/tắt nhắc cập nhật tiền mặt.
 - [ ] Lưu bằng DataStore.
 
 **Acceptance criteria:**
 
-- [ ] Notification service tôn trọng settings.
+- [x] Notification service tôn trọng settings.
 
 ### T-0602 - Android notification channels `[P0][FE]`
 
@@ -746,11 +746,11 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Xin quyền notification nếu Android yêu cầu.
-- [ ] Tạo channel budget.
-- [ ] Tạo channel goal.
-- [ ] Tạo channel reminder.
-- [ ] Tap notification mở đúng màn.
+- [x] Xin quyền notification nếu Android yêu cầu.
+- [x] Tạo channel budget.
+- [x] Tạo channel goal.
+- [x] Tạo channel reminder.
+- [x] Tap notification mở đúng màn.
 
 **Acceptance criteria:**
 
@@ -762,15 +762,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Handle BudgetWarningTriggered.
-- [ ] Handle BudgetExceeded.
-- [ ] Handle GoalCompleted.
-- [ ] Tạo nội dung thông báo rõ ràng.
-- [ ] Không thông báo nếu user tắt.
+- [x] Handle BudgetWarningTriggered.
+- [x] Handle BudgetExceeded.
+- [x] Handle GoalCompleted.
+- [x] Tạo nội dung thông báo rõ ràng.
+- [x] Không thông báo nếu user tắt.
 
 **Acceptance criteria:**
 
-- [ ] Budget warning/exceeded tạo notification local.
+- [x] Budget warning/exceeded tạo notification local.
 
 ### T-0604 - Nhắc cập nhật tiền mặt `[P1][FE]`
 
@@ -778,9 +778,9 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Cho chọn lịch nhắc.
-- [ ] Schedule bằng WorkManager/Alarm phù hợp.
-- [ ] Tap mở màn cập nhật tiền mặt.
+- [x] Cho chọn lịch nhắc.
+- [x] Schedule bằng WorkManager/Alarm phù hợp.
+- [x] Tap mở màn cập nhật tiền mặt.
 
 **Acceptance criteria:**
 
@@ -796,18 +796,18 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tổng tiền hiện có.
-- [ ] Tổng thu tháng.
-- [ ] Tổng chi tháng.
-- [ ] Chi theo category.
-- [ ] Pending transactions count/list.
+- [x] Tổng tiền hiện có.
+- [x] Tổng thu tháng.
+- [x] Tổng chi tháng.
+- [x] Chi theo category.
+- [x] Pending transactions count/list.
 - [x] Budget status.
-- [ ] Goal ưu tiên.
+- [x] Goal ưu tiên.
 
 **Acceptance criteria:**
 
-- [ ] Dashboard lấy dữ liệu từ local database.
-- [ ] Ignored transaction không tính vào report.
+- [x] Dashboard lấy dữ liệu từ local database.
+- [x] Ignored transaction không tính vào report.
 
 ### T-0702 - So sánh tháng `[P0][CORE]`
 
@@ -815,16 +815,16 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Tính tổng thu/chi tháng trước.
-- [ ] Tính tổng thu/chi tháng này.
-- [ ] Xử lý tháng trước bằng 0.
-- [ ] Category tăng mạnh nhất.
-- [ ] Category giảm nhiều nhất.
+- [x] Tính tổng thu/chi tháng trước.
+- [x] Tính tổng thu/chi tháng này.
+- [x] Xử lý tháng trước bằng 0.
+- [x] Category tăng mạnh nhất.
+- [x] Category giảm nhiều nhất.
 
 **Acceptance criteria:**
 
-- [ ] Không lỗi chia cho 0.
-- [ ] Có label rõ khi thiếu dữ liệu tháng trước.
+- [x] Không lỗi chia cho 0.
+- [x] Có label rõ khi thiếu dữ liệu tháng trước.
 
 ### T-0703 - Màn hình Dashboard `[P0][FE]`
 
@@ -835,7 +835,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [x] Card tổng tiền.
 - [x] Card thu/chi tháng.
 - [x] Giao dịch chờ phân loại.
-- [ ] Hạn mức cảnh báo.
+- [x] Hạn mức cảnh báo.
 - [x] Mục tiêu ưu tiên.
 - [x] Nút Đồng bộ SePay.
 - [x] Hiển thị trạng thái sync gần nhất.
@@ -1058,15 +1058,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Giải thích webhook cần URL public.
-- [ ] Giải thích điện thoại không nên làm public server.
-- [ ] Đưa ví dụ server/NAS/tunnel.
-- [ ] Giải thích bảo mật secret/signature.
-- [ ] Giải thích fallback sang pull sync.
+- [x] Giải thích webhook cần URL public.
+- [x] Giải thích điện thoại không nên làm public server.
+- [x] Đưa ví dụ server/NAS/tunnel.
+- [x] Giải thích bảo mật secret/signature.
+- [x] Giải thích fallback sang pull sync.
 
 **Acceptance criteria:**
 
-- [ ] Người dùng hiểu khi nào cần webhook và rủi ro đi kèm.
+- [x] Người dùng hiểu khi nào cần webhook và rủi ro đi kèm.
 
 ---
 
@@ -1132,30 +1132,30 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Mở app lần đầu.
-- [ ] Tạo account cash/bank.
-- [ ] Thêm expense thủ công.
-- [ ] Thêm income thủ công.
-- [ ] Phân loại pending.
-- [ ] Đặt budget.
-- [ ] Xem dashboard.
-- [ ] Tạo goal.
-- [ ] Lưu token SePay.
-- [ ] Bấm sync.
+- [x] Mở app lần đầu.
+- [x] Tạo account cash/bank.
+- [x] Thêm expense thủ công.
+- [x] Thêm income thủ công.
+- [x] Phân loại pending.
+- [x] Đặt budget.
+- [x] Xem dashboard.
+- [x] Tạo goal.
+- [x] Lưu token SePay.
+- [x] Bấm sync.
 
 **Acceptance criteria:**
 
-- [ ] Luồng MVP không crash trên emulator/device.
+- [ ] Luồng MVP không crash trên emulator/device. *(Đã thêm androidTest smoke; cần chạy trên emulator/device để tick)*
 
 ### T-1106 - Build internal APK/AAB `[P0][OPS]`
 
 **Checklist:**
 
-- [ ] Cấu hình app name/icon.
-- [ ] Cấu hình version.
-- [ ] Build debug/internal.
-- [ ] Ghi changelog.
-- [ ] Tài liệu cách cài cho tester.
+- [x] Cấu hình app name/icon.
+- [x] Cấu hình version.
+- [x] Build debug/internal.
+- [x] Ghi changelog.
+- [x] Tài liệu cách cài cho tester.
 
 **Acceptance criteria:**
 
@@ -1335,5 +1335,10 @@ Một task được xem là hoàn thành khi:
 - Pull sync khi mở app và nút Đồng bộ là trải nghiệm chính.
 - WorkManager chỉ là bổ trợ, không hứa realtime.
 - Luôn ưu tiên quyền riêng tư: dữ liệu của ai nằm trên máy người đó.
+
+
+
+
+
 
 

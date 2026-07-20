@@ -1,11 +1,14 @@
 ﻿package com.spendingapp
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import android.content.pm.PackageManager
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -60,9 +63,12 @@ import com.spendingapp.core.database.entity.TransactionEntity
 import com.spendingapp.core.event.DomainEventType
 import com.spendingapp.core.domain.BudgetCheckResult
 import com.spendingapp.core.model.AccountType
+import com.spendingapp.core.model.CategoryType
 import com.spendingapp.core.model.GoalPriority
 import com.spendingapp.core.model.GoalStatus
+import com.spendingapp.core.model.TransactionStatus
 import com.spendingapp.core.model.TransactionType
+import com.spendingapp.core.repository.BackgroundSyncSettings
 import com.spendingapp.core.repository.BudgetRepository
 import com.spendingapp.core.repository.BudgetStatus
 import com.spendingapp.core.repository.BudgetStatusSummary
@@ -71,26 +77,27 @@ import com.spendingapp.core.repository.CategorySpendingSummary
 import com.spendingapp.core.repository.BalanceTrendPoint
 import com.spendingapp.core.repository.MonthComparisonSummary
 import com.spendingapp.core.repository.MonthlyBarSummary
+import com.spendingapp.core.repository.ThemeMode
+import com.spendingapp.core.repository.ThemeSettings
 import com.spendingapp.core.sync.ImportResult
 import com.spendingapp.core.money.MoneyVnd
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         requestNotificationPermissionIfNeeded()
-        setContent { SpendingAppRoot() }
+        (application as SpendingApplication).container.autoSyncCoordinator.syncOnAppOpen()
+        setContent { SpendingAppRoot(initialTab = intent.notificationStartTab()) }
     }
 
     private fun requestNotificationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-        val permission = Manifest.permission.POST_NOTIFICATIONS
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(permission), REQUEST_NOTIFICATION_PERMISSION)
-        }
+        requestPostNotificationsPermission(this)
     }
 
     private companion object {
@@ -98,14 +105,36 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+const val EXTRA_START_TAB = "start_tab"
+
+private fun hasPostNotificationsPermission(context: Context): Boolean {
+    return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+}
+
+private fun requestPostNotificationsPermission(activity: Activity) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+    if (hasPostNotificationsPermission(activity)) return
+    ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+}
+
 private enum class MainTab(val label: String) {
     Dashboard("Tổng quan"), Transactions("Giao dịch"), Budgets("Hạn mức"), Goals("Mục tiêu"), Settings("Cài đặt")
 }
 
+private fun android.content.Intent.notificationStartTab(): MainTab = when (getStringExtra(EXTRA_START_TAB)) {
+    MainTab.Budgets.name -> MainTab.Budgets
+    MainTab.Goals.name -> MainTab.Goals
+    MainTab.Settings.name -> MainTab.Settings
+    MainTab.Transactions.name -> MainTab.Transactions
+    else -> MainTab.Dashboard
+}
+
 @Composable
-private fun SpendingAppRoot() {
+private fun SpendingAppRoot(initialTab: MainTab = MainTab.Dashboard) {
     MaterialTheme {
-        var selectedTab by remember { mutableStateOf(MainTab.Dashboard) }
+        var selectedTab by remember { mutableStateOf(initialTab) }
         Scaffold(
             bottomBar = {
                 NavigationBar {
@@ -230,8 +259,27 @@ private fun TransactionsScreen() {
     val goals by application.container.goalRepository.observeGoals().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var transactionMessage by remember { mutableStateOf<String?>(null) }
-    val income = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
-    val expense = transactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
+    var selectedTypeFilter by remember { mutableStateOf<TransactionType?>(null) }
+    var selectedAccountFilterIndex by remember { mutableStateOf(0) }
+    var selectedCategoryFilterIndex by remember { mutableStateOf(0) }
+    var selectedStatusFilterIndex by remember { mutableStateOf(0) }
+    var currentMonthOnly by remember { mutableStateOf(false) }
+    val accountFilterOptions = listOf<AccountEntity?>(null) + accounts
+    val categoryFilterOptions = listOf<CategoryEntity?>(null) + categories
+    val statusFilterOptions = listOf<TransactionStatus?>(null) + TransactionStatus.entries
+    val selectedAccountFilter = accountFilterOptions.getOrNull(selectedAccountFilterIndex.coerceIn(0, accountFilterOptions.lastIndex.coerceAtLeast(0)))
+    val selectedCategoryFilter = categoryFilterOptions.getOrNull(selectedCategoryFilterIndex.coerceIn(0, categoryFilterOptions.lastIndex.coerceAtLeast(0)))
+    val selectedStatusFilter = statusFilterOptions.getOrNull(selectedStatusFilterIndex.coerceIn(0, statusFilterOptions.lastIndex.coerceAtLeast(0)))
+    val currentMonthRange = remember { currentMonthRangeMillis() }
+    val filteredTransactions = transactions.filter { transaction ->
+        (selectedTypeFilter == null || transaction.type == selectedTypeFilter) &&
+            (selectedAccountFilter == null || transaction.accountId == selectedAccountFilter.id) &&
+            (selectedCategoryFilter == null || transaction.categoryId == selectedCategoryFilter.id) &&
+            (selectedStatusFilter == null || transaction.status == selectedStatusFilter) &&
+            (!currentMonthOnly || transaction.occurredAt in currentMonthRange.first..currentMonthRange.second)
+    }
+    val income = filteredTransactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
+    val expense = filteredTransactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
 
     LazyColumn(
         modifier = Modifier
@@ -254,21 +302,68 @@ private fun TransactionsScreen() {
         }
         item { AddTransactionCard(accounts = accounts, categories = categories, goals = goals) }
         item {
+            TransactionFilterCard(
+                selectedType = selectedTypeFilter,
+                accountName = selectedAccountFilter?.name ?: "Tất cả nguồn",
+                categoryName = selectedCategoryFilter?.name ?: "Tất cả hạng mục",
+                statusName = selectedStatusFilter?.label() ?: "Tất cả trạng thái",
+                currentMonthOnly = currentMonthOnly,
+                onTypeSelected = { selectedTypeFilter = it },
+                onPreviousAccount = { selectedAccountFilterIndex = (selectedAccountFilterIndex - 1).floorMod(accountFilterOptions.size) },
+                onNextAccount = { selectedAccountFilterIndex = (selectedAccountFilterIndex + 1).floorMod(accountFilterOptions.size) },
+                onPreviousCategory = { selectedCategoryFilterIndex = (selectedCategoryFilterIndex - 1).floorMod(categoryFilterOptions.size) },
+                onNextCategory = { selectedCategoryFilterIndex = (selectedCategoryFilterIndex + 1).floorMod(categoryFilterOptions.size) },
+                onPreviousStatus = { selectedStatusFilterIndex = (selectedStatusFilterIndex - 1).floorMod(statusFilterOptions.size) },
+                onNextStatus = { selectedStatusFilterIndex = (selectedStatusFilterIndex + 1).floorMod(statusFilterOptions.size) },
+                onToggleCurrentMonth = { currentMonthOnly = !currentMonthOnly },
+                onClear = {
+                    selectedTypeFilter = null
+                    selectedAccountFilterIndex = 0
+                    selectedCategoryFilterIndex = 0
+                    selectedStatusFilterIndex = 0
+                    currentMonthOnly = false
+                },
+            )
+        }
+        item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Lịch sử gần đây", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = AppColors.TextStrong)
-                Text("${transactions.size} giao dịch", color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
+                Text("${filteredTransactions.size}/${transactions.size} giao dịch", color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
             }
             transactionMessage?.let { Text(it, color = AppColors.TextStrong, style = MaterialTheme.typography.bodyMedium) }
         }
-        if (transactions.isEmpty()) {
-            item { EmptyTransactionsCard() }
+        if (filteredTransactions.isEmpty()) {
+            item { EmptyTransactionsCard(if (transactions.isEmpty()) "Thêm khoản chi đầu tiên để app bắt đầu thống kê cho bạn." else "Không có giao dịch khớp bộ lọc hiện tại.") }
         } else {
-            items(transactions, key = { it.id }) { transaction ->
+            items(filteredTransactions, key = { it.id }) { transaction ->
                 TransactionRow(
                     transaction = transaction,
+                    accounts = accounts,
+                    categories = categories,
                     accountName = accounts.firstOrNull { it.id == transaction.accountId }?.name ?: "Nguồn #${transaction.accountId}",
                     categoryName = transaction.categoryId?.let { categoryId -> categories.firstOrNull { it.id == categoryId }?.name } ?: "Chưa phân loại",
                     linkedGoalName = transaction.linkedGoalId?.let { goalId -> goals.firstOrNull { it.id == goalId }?.name },
+                    onSaveEdit = { accountId, categoryId, amount, note, occurredAt ->
+                        scope.launch {
+                            runCatching { repository.updateTransaction(transaction, accountId, categoryId, amount, note, occurredAt) }
+                                .onSuccess { budgetResult ->
+                                    application.container.localNotificationService.notifyBudgetResult(budgetResult)
+                                    transactionMessage = if (transaction.status == TransactionStatus.PENDING_CATEGORY && categoryId != null) {
+                                        budgetResult.budgetMessage("Đã phân loại giao dịch") ?: "Đã phân loại giao dịch"
+                                    } else {
+                                        "Đã cập nhật giao dịch"
+                                    }
+                                }
+                                .onFailure { error -> transactionMessage = error.message ?: "Không thể sửa giao dịch" }
+                        }
+                    },
+                    onIgnore = {
+                        scope.launch {
+                            runCatching { repository.ignoreTransaction(transaction) }
+                                .onSuccess { transactionMessage = "Đã bỏ qua giao dịch khỏi báo cáo" }
+                                .onFailure { error -> transactionMessage = error.message ?: "Không thể bỏ qua giao dịch" }
+                        }
+                    },
                     onUnlinkGoal = {
                         scope.launch {
                             runCatching { repository.unlinkGoal(transaction) }
@@ -290,9 +385,11 @@ private fun AddTransactionCard(accounts: List<AccountEntity>, categories: List<C
     var selectedAccountIndex by remember { mutableStateOf(0) }
     var selectedCategoryIndex by remember { mutableStateOf(0) }
     var selectedGoalIndex by remember { mutableStateOf(0) }
+    var selectedTimeIndex by remember { mutableStateOf(0) }
     var amountText by remember { mutableStateOf("") }
     var noteText by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
+    val timeOptions = remember { transactionTimeOptions() }
 
     val selectedAccount = accounts.getOrNull(selectedAccountIndex.coerceIn(0, (accounts.size - 1).coerceAtLeast(0)))
     val selectableCategories = categories.filter { category ->
@@ -334,15 +431,22 @@ private fun AddTransactionCard(accounts: List<AccountEntity>, categories: List<C
                 Text("Nếu chọn mục tiêu, khoản thu này sẽ tự cộng vào tiến độ và không làm lệch số dư.", color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
             }
             OutlinedTextField(value = amountText, onValueChange = { amountText = it.filter(Char::isDigit) }, label = { Text("Số tiền VND") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+            PickerRow(
+                "Thời gian",
+                timeOptions.getOrNull(selectedTimeIndex)?.label ?: "Hôm nay",
+                { selectedTimeIndex = (selectedTimeIndex - 1).floorMod(timeOptions.size) },
+                { selectedTimeIndex = (selectedTimeIndex + 1).floorMod(timeOptions.size) },
+            )
             OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Ghi chú nhẹ nhàng") }, modifier = Modifier.fillMaxWidth())
             Button(
                 enabled = canSave,
                 onClick = {
                     val account = selectedAccount ?: return@Button
                     val amount = amountText.toLongOrNull() ?: return@Button
+                    val occurredAt = timeOptions.getOrNull(selectedTimeIndex)?.timestampMillis ?: System.currentTimeMillis()
                     scope.launch {
                         runCatching {
-                            application.container.transactionRepository.addManualTransaction(account.id, selectedCategory?.id, type, amount, noteText, System.currentTimeMillis(), if (type == TransactionType.INCOME) selectedGoal?.id else null)
+                            application.container.transactionRepository.addManualTransaction(account.id, selectedCategory?.id, type, amount, noteText, occurredAt, if (type == TransactionType.INCOME) selectedGoal?.id else null)
                         }.onSuccess { result ->
                             if (result is ImportResult.Imported) {
                                 application.container.localNotificationService.notifyBudgetResult(result.budgetCheckResult)
@@ -362,6 +466,88 @@ private fun AddTransactionCard(accounts: List<AccountEntity>, categories: List<C
             message?.let { Text(it, color = AppColors.TextStrong, style = MaterialTheme.typography.bodyMedium) }
         }
     }
+}
+
+
+@Composable
+private fun TransactionFilterCard(
+    selectedType: TransactionType?,
+    accountName: String,
+    categoryName: String,
+    statusName: String,
+    currentMonthOnly: Boolean,
+    onTypeSelected: (TransactionType?) -> Unit,
+    onPreviousAccount: () -> Unit,
+    onNextAccount: () -> Unit,
+    onPreviousCategory: () -> Unit,
+    onNextCategory: () -> Unit,
+    onPreviousStatus: () -> Unit,
+    onNextStatus: () -> Unit,
+    onToggleCurrentMonth: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = AppColors.Card)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("Bộ lọc", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = AppColors.TextStrong)
+                Button(onClick = onClear, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Lavender)) { Text("Xóa lọc", color = AppColors.TextStrong) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SettingsChip("Tất cả", selectedType == null) { onTypeSelected(null) }
+                SettingsChip("Thu", selectedType == TransactionType.INCOME) { onTypeSelected(TransactionType.INCOME) }
+                SettingsChip("Chi", selectedType == TransactionType.EXPENSE) { onTypeSelected(TransactionType.EXPENSE) }
+            }
+            PickerRow("Nguồn", accountName, onPreviousAccount, onNextAccount)
+            PickerRow("Hạng mục", categoryName, onPreviousCategory, onNextCategory)
+            PickerRow("Trạng thái", statusName, onPreviousStatus, onNextStatus)
+            SettingsChip("Chỉ tháng hiện tại", currentMonthOnly, onToggleCurrentMonth)
+        }
+    }
+}
+
+private fun currentMonthRangeMillis(): Pair<Long, Long> {
+    val start = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_MONTH, 1)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    val end = start.clone() as Calendar
+    end.add(Calendar.MONTH, 1)
+    end.add(Calendar.MILLISECOND, -1)
+    return start.timeInMillis to end.timeInMillis
+}
+
+private data class TransactionTimeOption(
+    val label: String,
+    val timestampMillis: Long,
+)
+
+private fun transactionTimeOptions(): List<TransactionTimeOption> {
+    val now = Calendar.getInstance()
+    val today = now.clone() as Calendar
+    val yesterday = (now.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, -1) }
+    val monthStart = (now.clone() as Calendar).apply {
+        set(Calendar.DAY_OF_MONTH, 1)
+        set(Calendar.HOUR_OF_DAY, 9)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    return listOf(
+        TransactionTimeOption("Hôm nay", today.timeInMillis),
+        TransactionTimeOption("Hôm qua", yesterday.timeInMillis),
+        TransactionTimeOption("Đầu tháng", monthStart.timeInMillis),
+    )
+}
+
+private fun TransactionStatus.label(): String = when (this) {
+    TransactionStatus.PENDING_CATEGORY -> "Chờ phân loại"
+    TransactionStatus.CATEGORIZED -> "Đã phân loại"
+    TransactionStatus.IGNORED -> "Đã bỏ qua"
+    TransactionStatus.DUPLICATED -> "Trùng lặp"
+    TransactionStatus.ADJUSTED -> "Đã điều chỉnh"
 }
 
 @Composable
@@ -397,7 +583,7 @@ private fun MiniMoneyCard(title: String, value: String, color: Color, modifier: 
 }
 
 @Composable
-private fun EmptyTransactionsCard() {
+private fun EmptyTransactionsCard(message: String = "Thêm khoản chi đầu tiên để app bắt đầu thống kê cho bạn.") {
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = AppColors.Card)) {
         Column(
             Modifier.fillMaxWidth().padding(22.dp),
@@ -406,18 +592,21 @@ private fun EmptyTransactionsCard() {
         ) {
             Text("🌸", style = MaterialTheme.typography.headlineLarge)
             Text("Chưa có giao dịch nào", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = AppColors.TextStrong)
-            Text("Thêm khoản chi đầu tiên để app bắt đầu thống kê cho bạn.", color = AppColors.TextSoft, style = MaterialTheme.typography.bodyMedium)
+            Text(message, color = AppColors.TextSoft, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 private fun ImportResult.budgetMessage(): String? = when (this) {
-    is ImportResult.Imported -> when (val budgetResult = budgetCheckResult) {
-        is BudgetCheckResult.WarningTriggered -> "Đã lưu giao dịch • Sắp chạm hạn mức ${MoneyVnd(budgetResult.spentAmount).format()}"
-        is BudgetCheckResult.Exceeded -> "Đã lưu giao dịch • Đã vượt hạn mức ${MoneyVnd(budgetResult.spentAmount).format()}"
-        else -> null
-    }
+    is ImportResult.Imported -> budgetCheckResult.budgetMessage("Đã lưu giao dịch")
     is ImportResult.Duplicate -> null
 }
+
+private fun BudgetCheckResult.budgetMessage(prefix: String = "Đã cập nhật giao dịch"): String? = when (this) {
+    is BudgetCheckResult.WarningTriggered -> "$prefix • Sắp chạm hạn mức ${MoneyVnd(spentAmount).format()}"
+    is BudgetCheckResult.Exceeded -> "$prefix • Đã vượt hạn mức ${MoneyVnd(spentAmount).format()}"
+    else -> null
+}
+
 @Composable
 private fun PickerRow(label: String, value: String, onPrevious: () -> Unit, onNext: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -437,54 +626,84 @@ private fun PickerRow(label: String, value: String, onPrevious: () -> Unit, onNe
 }
 
 @Composable
-private fun TransactionRow(transaction: TransactionEntity, accountName: String, categoryName: String, linkedGoalName: String?, onUnlinkGoal: () -> Unit) {
+private fun TransactionRow(
+    transaction: TransactionEntity,
+    accounts: List<AccountEntity>,
+    categories: List<CategoryEntity>,
+    accountName: String,
+    categoryName: String,
+    linkedGoalName: String?,
+    onSaveEdit: (Long, Long?, Long, String?, Long) -> Unit,
+    onIgnore: () -> Unit,
+    onUnlinkGoal: () -> Unit,
+) {
     val isExpense = transaction.type == TransactionType.EXPENSE
     val sign = if (isExpense) "−" else "+"
     val color = if (isExpense) AppColors.Peach else AppColors.Mint
     val amount = MoneyVnd(transaction.amount).format()
+    var isEditing by remember(transaction.id) { mutableStateOf(false) }
+    var editAmountText by remember(transaction.id, transaction.amount) { mutableStateOf(transaction.amount.toString()) }
+    var editNoteText by remember(transaction.id, transaction.description) { mutableStateOf(transaction.description.orEmpty()) }
+    var editDateText by remember(transaction.id, transaction.occurredAt) { mutableStateOf(formatDate(transaction.occurredAt)) }
+    var editDateError by remember(transaction.id) { mutableStateOf<String?>(null) }
+    val accountOptions = accounts.ifEmpty { listOf(AccountEntity(id = transaction.accountId, name = accountName, balance = 0L, type = AccountType.CASH)) }
+    var editAccountIndex by remember(transaction.id, accounts) { mutableStateOf(accountOptions.indexOfFirst { it.id == transaction.accountId }.coerceAtLeast(0)) }
+    val categoryOptions = listOf<CategoryEntity?>(null) + categories
+    var editCategoryIndex by remember(transaction.id, categories) { mutableStateOf(categoryOptions.indexOfFirst { it?.id == transaction.categoryId }.coerceAtLeast(0)) }
+    val editAccount = accountOptions.getOrNull(editAccountIndex.coerceIn(0, accountOptions.lastIndex.coerceAtLeast(0)))
+    val editCategory = categoryOptions.getOrNull(editCategoryIndex.coerceIn(0, categoryOptions.lastIndex.coerceAtLeast(0)))
+    val parsedEditDate = parseDateTime(editDateText)
+    val canSaveEdit = editAccount != null && editAmountText.toLongOrNull()?.let { it > 0 } == true && parsedEditDate != null
+
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = AppColors.Card)) {
-        Row(
-            Modifier.fillMaxWidth().padding(14.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    progress = { 1f },
-                    color = color,
-                    trackColor = color.copy(alpha = 0.16f),
-                    strokeWidth = 5.dp,
-                    modifier = Modifier.size(42.dp),
-                )
-                Text(if (isExpense) "🧾" else "🌱", style = MaterialTheme.typography.bodySmall)
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(progress = { 1f }, color = color, trackColor = color.copy(alpha = 0.16f), strokeWidth = 5.dp, modifier = Modifier.size(42.dp))
+                    Text(if (isExpense) "🧾" else "🌱", style = MaterialTheme.typography.bodySmall)
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(categoryName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = AppColors.TextStrong)
+                    Text(accountName, color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
+                    linkedGoalName?.let { Text("Mục tiêu: $it", color = AppColors.Purple, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold) }
+                    transaction.description?.let { Text(it, color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall) }
+                    Text(formatDate(transaction.occurredAt), color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
+                }
+                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("$sign$amount", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = color)
+                    Button(onClick = { isEditing = !isEditing }, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Lavender)) { Text(if (isEditing) "Đóng" else "Sửa", color = AppColors.TextStrong) }
+                    Button(onClick = onIgnore, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Peach.copy(alpha = 0.82f))) { Text("Bỏ qua", color = Color.White) }
+                    if (linkedGoalName != null && transaction.type == TransactionType.INCOME) {
+                        Button(onClick = onUnlinkGoal, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Lavender)) { Text("Gỡ", color = AppColors.TextStrong) }
+                    }
+                }
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(categoryName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = AppColors.TextStrong)
-                Text(accountName, color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
-                linkedGoalName?.let { Text("Mục tiêu: $it", color = AppColors.Purple, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold) }
-                transaction.description?.let { Text(it, color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall) }
-                Text(formatDate(transaction.occurredAt), color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
-            }
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("$sign$amount", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = color)
-                if (linkedGoalName != null && transaction.type == TransactionType.INCOME) {
-                    Button(onClick = onUnlinkGoal, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Lavender)) { Text("Gỡ", color = AppColors.TextStrong) }
+            if (isEditing) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    PickerRow("Nguồn", editAccount?.name ?: accountName, { editAccountIndex = (editAccountIndex - 1).floorMod(accountOptions.size) }, { editAccountIndex = (editAccountIndex + 1).floorMod(accountOptions.size) })
+                    PickerRow("Hạng mục", editCategory?.name ?: "Chưa phân loại", { editCategoryIndex = (editCategoryIndex - 1).floorMod(categoryOptions.size) }, { editCategoryIndex = (editCategoryIndex + 1).floorMod(categoryOptions.size) })
+                    OutlinedTextField(value = editAmountText, onValueChange = { editAmountText = it.filter(Char::isDigit) }, label = { Text("Số tiền mới") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = editNoteText, onValueChange = { editNoteText = it }, label = { Text("Ghi chú") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = editDateText, onValueChange = { editDateText = it; editDateError = null }, label = { Text("Ngày giờ (dd/MM/yyyy HH:mm)") }, modifier = Modifier.fillMaxWidth())
+                    editDateError?.let { Text(it, color = AppColors.Pink, style = MaterialTheme.typography.bodySmall) }
+                    Button(
+                        enabled = canSaveEdit,
+                        onClick = {
+                            val selectedAccount = editAccount ?: return@Button
+                            val newAmount = editAmountText.toLongOrNull() ?: return@Button
+                            val newOccurredAt = parsedEditDate ?: run {
+                                editDateError = "Ngày giờ chưa đúng định dạng dd/MM/yyyy HH:mm"
+                                return@Button
+                            }
+                            onSaveEdit(selectedAccount.id, editCategory?.id, newAmount, editNoteText, newOccurredAt)
+                            isEditing = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.Purple),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("Lưu chỉnh sửa", color = Color.White, fontWeight = FontWeight.SemiBold) }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun CuteGradientCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = AppColors.Purple)) {
-        Column(
-            modifier = Modifier
-                .background(Brush.linearGradient(listOf(AppColors.Purple, AppColors.Pink)))
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            content = content,
-        )
     }
 }
 
@@ -534,9 +753,17 @@ private object AppColors {
 
 @Composable
 private fun MonthComparisonCard(comparison: MonthComparisonSummary) {
+    val hasPreviousMonthData = comparison.previousIncomeAmount > 0 || comparison.previousExpenseAmount > 0
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = AppColors.Card)) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("So với tháng trước", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = AppColors.TextStrong)
+            if (!hasPreviousMonthData) {
+                Text(
+                    "Chưa có dữ liệu tháng trước, số liệu đang tính từ 0đ.",
+                    color = AppColors.TextSoft,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 MonthDeltaPill("Thu", comparison.incomeDeltaAmount, AppColors.Mint, Modifier.weight(1f))
                 MonthDeltaPill("Chi", comparison.expenseDeltaAmount, AppColors.Peach, Modifier.weight(1f))
@@ -780,6 +1007,13 @@ private fun AccountBalancePill(account: AccountEntity) {
             Text(MoneyVnd(account.balance.coerceAtLeast(0)).format(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = AppColors.TextStrong)
         }
     }
+}
+
+
+private fun CategoryType.label(): String = when (this) {
+    CategoryType.INCOME -> "Thu"
+    CategoryType.EXPENSE -> "Chi"
+    CategoryType.BOTH -> "Thu/Chi"
 }
 
 private fun AccountType.label(): String = when (this) {
@@ -1088,6 +1322,12 @@ private fun GoalStatus.label(): String = when (this) {
     GoalStatus.CANCELLED -> "Đã hủy"
 }
 
+private fun ThemeMode.label(): String = when (this) {
+    ThemeMode.SYSTEM -> "Theo thiết bị"
+    ThemeMode.LIGHT -> "Sáng"
+    ThemeMode.DARK -> "Tối"
+}
+
 @Composable
 private fun PlaceholderScreen(title: String, description: String) {
     Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -1098,9 +1338,11 @@ private fun PlaceholderScreen(title: String, description: String) {
 
 @Composable
 private fun SettingsScreen() {
-    val application = LocalContext.current.applicationContext as SpendingApplication
+    val currentContext = LocalContext.current
+    val application = currentContext.applicationContext as SpendingApplication
     val scope = rememberCoroutineScope()
     val accounts by application.container.accountRepository.observeAccounts().collectAsState(initial = emptyList())
+    val categories by application.container.categoryRepository.observeCategories().collectAsState(initial = emptyList())
     var accountType by remember { mutableStateOf(AccountType.BANK) }
     var nameText by remember { mutableStateOf("") }
     var providerText by remember { mutableStateOf("") }
@@ -1108,14 +1350,25 @@ private fun SettingsScreen() {
     var selectedUpdateAccountIndex by remember { mutableStateOf(0) }
     var updateBalanceText by remember { mutableStateOf("") }
     var updateReasonText by remember { mutableStateOf("Cập nhật số dư thực tế") }
+    var categoryType by remember { mutableStateOf(CategoryType.EXPENSE) }
+    var categoryNameText by remember { mutableStateOf("") }
+    var categoryIconText by remember { mutableStateOf("🌸") }
+    var categoryColorText by remember { mutableStateOf("#FF7AB6") }
+    var selectedCategoryManageIndex by remember { mutableStateOf(0) }
+    var categoryEditNameText by remember { mutableStateOf("") }
+    var categoryEditIconText by remember { mutableStateOf("") }
+    var categoryEditColorText by remember { mutableStateOf("") }
     var tokenText by remember { mutableStateOf("") }
     var tokenSaved by remember { mutableStateOf(application.container.secureTokenStorage.hasSePayToken()) }
     var webhookUrlText by remember { mutableStateOf(application.container.webhookSettingsRepository.getWebhookUrl()) }
     var webhookApiKeyText by remember { mutableStateOf("") }
     var webhookApiKeySaved by remember { mutableStateOf(application.container.secureTokenStorage.hasWebhookApiKey()) }
     var webhookMessage by remember { mutableStateOf<String?>(null) }
-    var notificationSettings by remember { mutableStateOf(application.container.notificationSettingsRepository.getSettings()) }
+    val notificationSettings by application.container.notificationSettingsRepository.observeSettings().collectAsState()
+    val backgroundSyncSettings by application.container.backgroundSyncSettingsRepository.observeSettings().collectAsState()
+    val themeSettings by application.container.themeSettingsRepository.observeSettings().collectAsState()
     var message by remember { mutableStateOf<String?>(null) }
+    var sePayMessage by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(
         modifier = Modifier
@@ -1128,6 +1381,20 @@ private fun SettingsScreen() {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("Cài đặt", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = AppColors.TextStrong)
                 Text("Quản lý nguồn tiền, đồng bộ và quyền riêng tư", color = AppColors.TextSoft)
+            }
+        }
+        item {
+            SettingsSectionCard(title = "Giao diện", emoji = "🎨", description = "Lưu lựa chọn theme local trên thiết bị.") {
+                Text("Theme hiện tại: ${themeSettings.mode.label()}", color = AppColors.TextSoft)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ThemeMode.entries.forEach { mode ->
+                        SettingsChip(mode.label(), themeSettings.mode == mode) {
+                            application.container.themeSettingsRepository.saveSettings(ThemeSettings(mode))
+                            scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "theme_mode") }
+                        }
+                    }
+                }
+                Text("MVP đang dùng palette dễ thương cố định; lựa chọn này được lưu để áp dụng mở rộng dark/light theme sau.", color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
             }
         }
         item {
@@ -1156,8 +1423,71 @@ private fun SettingsScreen() {
             }
         }
         item {
+            SettingsSectionCard(title = "Hạng mục", emoji = "🏷️", description = "Tạo, sửa hoặc ẩn hạng mục local trên thiết bị.") {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SettingsChip("Chi", categoryType == CategoryType.EXPENSE) { categoryType = CategoryType.EXPENSE }
+                    SettingsChip("Thu", categoryType == CategoryType.INCOME) { categoryType = CategoryType.INCOME }
+                    SettingsChip("Cả hai", categoryType == CategoryType.BOTH) { categoryType = CategoryType.BOTH }
+                }
+                OutlinedTextField(categoryNameText, { categoryNameText = it }, label = { Text("Tên hạng mục") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(categoryIconText, { categoryIconText = it }, label = { Text("Icon/emoji") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(categoryColorText, { categoryColorText = it }, label = { Text("Màu HEX") }, modifier = Modifier.fillMaxWidth())
+                CuteButton("Tạo hạng mục") {
+                    scope.launch {
+                        runCatching { application.container.categoryRepository.createCategory(categoryNameText, categoryType, categoryIconText, categoryColorText) }
+                            .onSuccess { categoryNameText = ""; message = "Đã tạo hạng mục" }
+                            .onFailure { error -> message = error.message ?: "Không thể tạo hạng mục" }
+                    }
+                }
+                val selectedCategory = categories.getOrNull(selectedCategoryManageIndex.coerceIn(0, (categories.size - 1).coerceAtLeast(0)))
+                PickerRow(
+                    label = "Hạng mục cần sửa/ẩn",
+                    value = selectedCategory?.let { "${it.icon ?: "🏷️"} ${it.name}" } ?: "Chưa có hạng mục",
+                    onPrevious = { if (categories.isNotEmpty()) selectedCategoryManageIndex = (selectedCategoryManageIndex - 1).floorMod(categories.size) },
+                    onNext = { if (categories.isNotEmpty()) selectedCategoryManageIndex = (selectedCategoryManageIndex + 1).floorMod(categories.size) },
+                )
+                OutlinedTextField(categoryEditNameText, { categoryEditNameText = it }, label = { Text("Tên mới") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(categoryEditIconText, { categoryEditIconText = it }, label = { Text("Icon mới") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(categoryEditColorText, { categoryEditColorText = it }, label = { Text("Màu mới") }, modifier = Modifier.fillMaxWidth())
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CuteButton("Lưu sửa") {
+                        val category = selectedCategory ?: return@CuteButton
+                        scope.launch {
+                            runCatching {
+                                application.container.categoryRepository.updateCategory(
+                                    category = category,
+                                    name = categoryEditNameText.ifBlank { category.name },
+                                    icon = categoryEditIconText.ifBlank { category.icon },
+                                    color = categoryEditColorText.ifBlank { category.color },
+                                )
+                            }.onSuccess {
+                                categoryEditNameText = ""; categoryEditIconText = ""; categoryEditColorText = ""; message = "Đã sửa hạng mục"
+                            }.onFailure { error -> message = error.message ?: "Không thể sửa hạng mục" }
+                        }
+                    }
+                    Button(onClick = {
+                        val category = selectedCategory ?: return@Button
+                        scope.launch {
+                            runCatching { application.container.categoryRepository.archiveCategory(category) }
+                                .onSuccess { message = "Đã ẩn hạng mục" }
+                                .onFailure { error -> message = error.message ?: "Không thể ẩn hạng mục" }
+                        }
+                    }, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Peach)) { Text("Ẩn", color = Color.White) }
+                }
+                if (categories.isEmpty()) {
+                    Text("Chưa có hạng mục nào.", color = AppColors.TextSoft)
+                } else {
+                    categories.take(8).forEach { category ->
+                        Text("${category.icon ?: "🏷️"} ${category.name} • ${category.type.label()}", color = AppColors.TextStrong)
+                    }
+                }
+            }
+        }
+        item {
             SettingsSectionCard(title = "Cập nhật số dư", emoji = "🧾", description = "Điều chỉnh số dư thực tế và lưu BalanceLog để truy vết.") {
                 val selectedUpdateAccount = accounts.getOrNull(selectedUpdateAccountIndex.coerceIn(0, (accounts.size - 1).coerceAtLeast(0)))
+                val parsedUpdateBalance = updateBalanceText.toLongOrNull()
+                val updateBalanceDelta = parsedUpdateBalance?.let { newBalance -> selectedUpdateAccount?.let { newBalance - it.balance } }
                 PickerRow(
                     label = "Nguồn cần cập nhật",
                     value = selectedUpdateAccount?.let { "${it.name} • ${MoneyVnd(it.balance.coerceAtLeast(0)).format()}" } ?: "Chưa có nguồn tiền",
@@ -1171,7 +1501,18 @@ private fun SettingsScreen() {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                updateBalanceDelta?.let { delta ->
+                    Text(
+                        if (delta == 0L) "Không có chênh lệch so với số dư hiện tại." else "Chênh lệch: ${delta.formatDeltaMoney()}",
+                        color = if (delta == 0L) AppColors.TextSoft else AppColors.Purple,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
                 OutlinedTextField(updateReasonText, { updateReasonText = it }, label = { Text("Lý do cập nhật") }, modifier = Modifier.fillMaxWidth())
+                if ((updateBalanceDelta ?: 0L) != 0L && updateReasonText.isBlank()) {
+                    Text("Vui lòng nhập lý do để lưu lịch sử điều chỉnh.", color = AppColors.Pink, style = MaterialTheme.typography.bodySmall)
+                }
                 CuteButton("Cập nhật số dư") {
                     val account = selectedUpdateAccount ?: return@CuteButton
                     val newBalance = updateBalanceText.toLongOrNull() ?: return@CuteButton
@@ -1185,24 +1526,29 @@ private fun SettingsScreen() {
         }
         item {
             SettingsSectionCard(title = "Thông báo", emoji = "🔔", description = "Bật/tắt cảnh báo local. Dữ liệu vẫn nằm trên thiết bị của bạn.") {
+                val notificationPermissionGranted = hasPostNotificationsPermission(currentContext)
+                Text(if (notificationPermissionGranted) "Quyền thiết bị: đã cho phép" else "Quyền thiết bị: cần cấp quyền thông báo", color = AppColors.TextSoft)
+                CuteButton("Xin quyền thông báo từ thiết bị") {
+                    (currentContext as? Activity)?.let(::requestPostNotificationsPermission)
+                }
                 Text(if (notificationSettings.allEnabled) "Thông báo tổng: đang bật" else "Thông báo tổng: đang tắt", color = AppColors.TextSoft)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SettingsChip("Tất cả", notificationSettings.allEnabled) {
-                        notificationSettings = application.container.notificationSettingsRepository.update { it.copy(allEnabled = !it.allEnabled) }
+                        application.container.notificationSettingsRepository.update { it.copy(allEnabled = !it.allEnabled) }
                         scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "notifications_all") }
                     }
                     SettingsChip("Hạn mức", notificationSettings.budgetEnabled) {
-                        notificationSettings = application.container.notificationSettingsRepository.update { it.copy(budgetEnabled = !it.budgetEnabled) }
+                        application.container.notificationSettingsRepository.update { it.copy(budgetEnabled = !it.budgetEnabled) }
                         scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "notifications_budget") }
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SettingsChip("Mục tiêu", notificationSettings.goalEnabled) {
-                        notificationSettings = application.container.notificationSettingsRepository.update { it.copy(goalEnabled = !it.goalEnabled) }
+                        application.container.notificationSettingsRepository.update { it.copy(goalEnabled = !it.goalEnabled) }
                         scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "notifications_goal") }
                     }
                     SettingsChip("Nhắc tiền mặt", notificationSettings.cashReminderEnabled) {
-                        notificationSettings = application.container.notificationSettingsRepository.update { it.copy(cashReminderEnabled = !it.cashReminderEnabled) }
+                        application.container.notificationSettingsRepository.update { it.copy(cashReminderEnabled = !it.cashReminderEnabled) }
                         scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "notifications_cash_reminder") }
                         if (notificationSettings.cashReminderEnabled) {
                             application.container.cashReminderScheduler.schedule(notificationSettings.cashReminderIntervalDays)
@@ -1215,7 +1561,7 @@ private fun SettingsScreen() {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(1, 3, 7).forEach { days ->
                         SettingsChip("$days ngày", notificationSettings.cashReminderIntervalDays == days) {
-                            notificationSettings = application.container.notificationSettingsRepository.update { it.copy(cashReminderIntervalDays = days, cashReminderEnabled = true) }
+                            application.container.notificationSettingsRepository.update { it.copy(cashReminderIntervalDays = days, cashReminderEnabled = true) }
                             scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "cash_reminder_interval") }
                             application.container.cashReminderScheduler.schedule(days)
                         }
@@ -1232,6 +1578,7 @@ private fun SettingsScreen() {
         item {
             SettingsSectionCard(title = "SePay pull sync", emoji = "🔐", description = "Token được mã hóa trên thiết bị, dùng để kéo giao dịch khi bạn bấm Đồng bộ.") {
                 Text(if (tokenSaved) "Trạng thái: đã lưu token" else "Trạng thái: chưa có token", color = AppColors.TextSoft)
+                Text("Token chỉ lưu mã hóa trên thiết bị này, dùng khi bạn sync thủ công hoặc app tự sync.", color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(tokenText, { tokenText = it }, label = { Text("SePay API token") }, modifier = Modifier.fillMaxWidth())
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CuteButton("Lưu token") {
@@ -1243,6 +1590,19 @@ private fun SettingsScreen() {
                             message = "Đã lưu token SePay"
                         }
                     }
+                    CuteButton("Test kết nối") {
+                        val token = tokenText.takeIf { it.isNotBlank() } ?: application.container.secureTokenStorage.getSePayToken()
+                        if (token.isNullOrBlank()) {
+                            sePayMessage = "Bạn cần nhập hoặc lưu token trước khi test"
+                            return@CuteButton
+                        }
+                        sePayMessage = "Đang kiểm tra SePay..."
+                        scope.launch {
+                            runCatching { application.container.sePaySyncService.sync(token) }
+                                .onSuccess { result -> sePayMessage = "Kết nối OK • mới ${result.imported}, trùng ${result.duplicated}" }
+                                .onFailure { error -> sePayMessage = error.message ?: "Không thể kết nối SePay" }
+                        }
+                    }
                     Button(onClick = {
                         application.container.secureTokenStorage.clearSePayToken()
                         scope.launch { application.container.domainEventPublisher.publish(DomainEventType.TOKEN_CLEARED, "security", actionId = "sepay_token") }
@@ -1250,6 +1610,29 @@ private fun SettingsScreen() {
                         message = "Đã xóa token SePay"
                     }, colors = ButtonDefaults.buttonColors(containerColor = AppColors.Peach)) { Text("Xóa", color = Color.White) }
                 }
+                sePayMessage?.let { Text(it, color = AppColors.TextStrong) }
+            }
+        }
+        item {
+            SettingsSectionCard(title = "Đồng bộ nền", emoji = "⏱️", description = "WorkManager sẽ sync khi Android cho phép, không phải realtime tuyệt đối.") {
+                Text(if (backgroundSyncSettings.enabled) "Đồng bộ nền: đang bật" else "Đồng bộ nền: đang tắt", color = AppColors.TextSoft)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SettingsChip("Bật", backgroundSyncSettings.enabled) {
+                        saveBackgroundSyncSettings(application, scope, backgroundSyncSettings.copy(enabled = !backgroundSyncSettings.enabled))
+                    }
+                    SettingsChip("Chỉ Wi‑Fi", backgroundSyncSettings.wifiOnly) {
+                        saveBackgroundSyncSettings(application, scope, backgroundSyncSettings.copy(wifiOnly = !backgroundSyncSettings.wifiOnly, enabled = true))
+                    }
+                }
+                Text("Khoảng sync", color = AppColors.TextStrong, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(6, 12, 24).forEach { hours ->
+                        SettingsChip("${hours}h", backgroundSyncSettings.intervalHours == hours) {
+                            saveBackgroundSyncSettings(application, scope, backgroundSyncSettings.copy(intervalHours = hours, enabled = true))
+                        }
+                    }
+                }
+                Text("Android có thể trì hoãn worker để tiết kiệm pin; app không hứa cập nhật realtime.", color = AppColors.TextSoft, style = MaterialTheme.typography.bodySmall)
             }
         }
         item {
@@ -1315,6 +1698,18 @@ private fun SettingsScreen() {
     }
 }
 
+
+private fun saveBackgroundSyncSettings(
+    application: SpendingApplication,
+    scope: kotlinx.coroutines.CoroutineScope,
+    settings: BackgroundSyncSettings,
+): BackgroundSyncSettings {
+    val saved = application.container.backgroundSyncSettingsRepository.saveSettings(settings)
+    application.container.sePayBackgroundSyncScheduler.apply(saved)
+    scope.launch { application.container.domainEventPublisher.publish(DomainEventType.SETTINGS_UPDATED, "settings", actionId = "background_sync") }
+    return saved
+}
+
 @Composable
 private fun SettingsSectionCard(
     title: String,
@@ -1347,6 +1742,20 @@ private fun SettingsChip(text: String, selected: Boolean, onClick: () -> Unit) {
 private fun Int.floorMod(size: Int): Int = Math.floorMod(this, size)
 
 private fun formatDate(timestamp: Long): String = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("vi", "VN")).format(Date(timestamp))
+
+private fun parseDateTime(value: String): Long? = runCatching {
+    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("vi", "VN")).apply { isLenient = false }.parse(value.trim())?.time
+}.getOrNull()
+
+
+
+
+
+
+
+
+
+
 
 
 

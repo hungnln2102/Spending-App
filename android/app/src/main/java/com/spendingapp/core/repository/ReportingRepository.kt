@@ -6,6 +6,7 @@ import com.spendingapp.core.database.entity.CategoryEntity
 import com.spendingapp.core.database.entity.GoalEntity
 import com.spendingapp.core.database.entity.TransactionEntity
 import com.spendingapp.core.model.GoalStatus
+import com.spendingapp.core.model.TransactionStatus
 import com.spendingapp.core.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -63,8 +64,8 @@ class ReportingRepository(
                 budgetStatuses = budgetStatuses,
                 monthlyBars = monthlyBars,
                 balanceTrend = balanceTrend,
-                pendingCategoryCount = transactions.count { it.categoryId == null },
-                pendingCategoryTransactions = transactions.filter { it.categoryId == null },
+                pendingCategoryCount = transactions.count { it.status == TransactionStatus.PENDING_CATEGORY },
+                pendingCategoryTransactions = transactions.filter { it.status == TransactionStatus.PENDING_CATEGORY },
                 featuredGoal = goals.firstOrNull { it.status == GoalStatus.ACTIVE },
             )
         }
@@ -219,6 +220,7 @@ data class BudgetStatusSummary(
 )
 
 enum class BudgetStatus { OK, WARNING, EXCEEDED }
+
 
 
 

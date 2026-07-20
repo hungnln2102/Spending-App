@@ -23,10 +23,12 @@ class SpendingApplication : Application() {
         } else {
             container.cashReminderScheduler.cancel()
         }
+        container.sePayBackgroundSyncScheduler.apply(container.backgroundSyncSettingsRepository.getSettings())
         applicationScope.launch {
             container.databaseSeeder.seedIfNeeded()
         }
     }
 }
+
 
 

@@ -1,4 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.SpendingApp.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.SpendingApp</item>
+    </style>
+
     <style name="Theme.SpendingApp" parent="android:style/Theme.Material.Light.NoActionBar" />
 </resources>

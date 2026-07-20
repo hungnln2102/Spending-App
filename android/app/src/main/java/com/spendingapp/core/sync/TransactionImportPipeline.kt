@@ -75,6 +75,14 @@ class TransactionImportPipeline(
                 transactionId,
                 actionId = input.externalTransactionId ?: input.referenceNumber,
             )
+            if (input.type == TransactionType.EXPENSE && status == TransactionStatus.PENDING_CATEGORY) {
+                eventPublisher.publish(
+                    DomainEventType.TRANSACTION_EXPENSE_DETECTED,
+                    "transaction",
+                    transactionId,
+                    actionId = input.externalTransactionId ?: input.referenceNumber,
+                )
+            }
             val budgetCheckResult = budgetChecker?.checkAfterTransaction(importedTransaction) ?: BudgetCheckResult.NoBudget
             when (budgetCheckResult) {
                 is BudgetCheckResult.WarningTriggered -> eventPublisher.publish(DomainEventType.BUDGET_WARNING_TRIGGERED, "budget", budgetCheckResult.budget.id)

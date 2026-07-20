@@ -17,3 +17,4 @@ local.properties
 tools/
 android/local.properties
 
+android/keystore.properties

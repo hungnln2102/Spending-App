@@ -12,6 +12,9 @@ import com.spendingapp.core.event.DomainEventPublisher
 import com.spendingapp.core.event.DomainEventType
 import com.spendingapp.core.model.AccountType
 import com.spendingapp.core.model.SyncStatus
+import com.spendingapp.core.model.TransactionSource
+import com.spendingapp.core.model.TransactionStatus
+import com.spendingapp.core.model.TransactionType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -94,10 +97,20 @@ class SePaySyncServiceTest {
 
         val account = database.accountDao().getById(accountId)!!
         val transactions = database.transactionDao().observeTransactions().first()
+        val income = transactions.first { it.externalTransactionId == "in-1" }
+        val expense = transactions.first { it.externalTransactionId == "out-1" }
+        val events = database.domainEventDao().observeAll().first()
         assertEquals(2, result.imported)
         assertEquals(0, result.duplicated)
         assertEquals(120_000, account.balance)
         assertEquals(2, transactions.size)
+        assertEquals(TransactionType.INCOME, income.type)
+        assertEquals(TransactionType.EXPENSE, expense.type)
+        assertEquals(TransactionSource.SEPAY_API, income.source)
+        assertEquals(TransactionSource.SEPAY_API, expense.source)
+        assertEquals(TransactionStatus.CATEGORIZED, income.status)
+        assertEquals(TransactionStatus.PENDING_CATEGORY, expense.status)
+        assertTrue(events.any { it.type == DomainEventType.TRANSACTION_EXPENSE_DETECTED && it.aggregateId == expense.id })
     }
 
     @Test

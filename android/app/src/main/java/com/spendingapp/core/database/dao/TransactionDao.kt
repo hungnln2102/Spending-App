@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.spendingapp.core.database.entity.TransactionEntity
 import com.spendingapp.core.model.TransactionStatus
+import com.spendingapp.core.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,6 +17,29 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE status = :status ORDER BY occurredAt DESC, id DESC")
     fun observeByStatus(status: TransactionStatus): Flow<List<TransactionEntity>>
 
+
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE (:accountId IS NULL OR accountId = :accountId)
+            AND (:categoryId IS NULL OR categoryId = :categoryId)
+            AND (:type IS NULL OR type = :type)
+            AND (:status IS NULL OR status = :status)
+            AND (:includeIgnored = 1 OR status != 'IGNORED')
+            AND (:fromOccurredAt IS NULL OR occurredAt >= :fromOccurredAt)
+            AND (:toOccurredAt IS NULL OR occurredAt <= :toOccurredAt)
+        ORDER BY occurredAt DESC, id DESC
+        """,
+    )
+    fun observeFiltered(
+        accountId: Long? = null,
+        categoryId: Long? = null,
+        type: TransactionType? = null,
+        status: TransactionStatus? = null,
+        includeIgnored: Boolean = false,
+        fromOccurredAt: Long? = null,
+        toOccurredAt: Long? = null,
+    ): Flow<List<TransactionEntity>>
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): TransactionEntity?
 

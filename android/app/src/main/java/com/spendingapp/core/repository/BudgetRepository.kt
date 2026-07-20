@@ -62,6 +62,12 @@ class BudgetRepository(
         }
     }
 
+    suspend fun deleteBudget(categoryId: Long, month: String) {
+        val existing = database.budgetDao().getByCategoryAndMonth(categoryId, month) ?: return
+        database.budgetDao().delete(existing)
+        eventPublisher.publish(DomainEventType.BUDGET_DELETED, "budget", existing.id)
+    }
+
     companion object {
         fun currentMonth(): String = YearMonth.now().toString()
 

@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import com.spendingapp.EXTRA_START_TAB
 import com.spendingapp.MainActivity
 import com.spendingapp.core.domain.BudgetCheckResult
 import com.spendingapp.core.money.MoneyVnd
@@ -85,7 +86,9 @@ class LocalNotificationService(
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) return
 
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, MainActivity::class.java).apply {
+            putExtra(EXTRA_START_TAB, channelId.startTabName())
+        }
         val pendingIntent = PendingIntent.getActivity(
             context,
             id,
@@ -102,6 +105,13 @@ class LocalNotificationService(
         notificationManager.notify(id, notification)
     }
 
+    private fun String.startTabName(): String = when (this) {
+        CHANNEL_BUDGET -> "Budgets"
+        CHANNEL_GOAL -> "Goals"
+        CHANNEL_REMINDER -> "Settings"
+        else -> "Dashboard"
+    }
+
     companion object {
         const val CHANNEL_BUDGET = "budget"
         const val CHANNEL_GOAL = "goal"
@@ -109,4 +119,5 @@ class LocalNotificationService(
         private const val CASH_REMINDER_NOTIFICATION_ID = 30_001
     }
 }
+
 

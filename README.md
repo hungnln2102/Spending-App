@@ -10,7 +10,7 @@
 - DataStore/Android Keystore dự kiến cho settings và token.
 - Không yêu cầu backend/server trong MVP.
 - SePay sẽ được tích hợp bằng pull sync: user nhập token riêng, app kéo giao dịch khi mở app hoặc bấm Đồng bộ.
-- Webhook URL là chế độ optional cho user nâng cao có public endpoint riêng.
+- Webhook URL là chế độ optional cho user nâng cao có public endpoint riêng. Xem `docs/WEBHOOK_USER_OWNED.md`.
 
 ## Cấu trúc
 
@@ -91,6 +91,7 @@ Theo `TASKS.md`, tiếp tục từ:
 2. Làm hạn mức chi tiêu local.
 3. Làm dashboard báo cáo chi tiết hơn.
 4. Thêm WorkManager auto sync nền.
+
 
 
 

@@ -1,4 +1,4 @@
-package com.spendingapp.core.event
+﻿package com.spendingapp.core.event
 
 enum class DomainEventType(
     val feature: String,
@@ -17,8 +17,11 @@ enum class DomainEventType(
     TRANSACTION_CREATED("transaction", DomainEventAction.CREATED, "Giao dich duoc tao"),
     TRANSACTION_IMPORTED("transaction", DomainEventAction.CREATED, "Giao dich duoc import"),
     TRANSACTION_UPDATED("transaction", DomainEventAction.UPDATED, "Giao dich duoc cap nhat"),
+    TRANSACTION_CATEGORIZED("transaction", DomainEventAction.UPDATED, "Giao dich duoc phan loai"),
+    TRANSACTION_IGNORED("transaction", DomainEventAction.DELETED, "Giao dich duoc bo qua/xoa mem"),
     TRANSACTION_DELETED("transaction", DomainEventAction.DELETED, "Giao dich bi xoa"),
     TRANSACTION_DUPLICATED("transaction", DomainEventAction.SYSTEM, "Giao dich bi trung"),
+    TRANSACTION_EXPENSE_DETECTED("transaction", DomainEventAction.SYSTEM, "Phat hien giao dich chi can phan loai"),
 
     BUDGET_CREATED("budget", DomainEventAction.CREATED, "Han muc duoc tao"),
     BUDGET_UPDATED("budget", DomainEventAction.UPDATED, "Han muc duoc cap nhat"),
@@ -47,3 +50,4 @@ enum class DomainEventType(
 }
 
 enum class DomainEventAction { CREATED, UPDATED, DELETED, SYSTEM }
+

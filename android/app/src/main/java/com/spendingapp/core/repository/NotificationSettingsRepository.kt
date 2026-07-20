@@ -1,6 +1,9 @@
 ﻿package com.spendingapp.core.repository
 
 import android.content.Context
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class NotificationSettings(
     val allEnabled: Boolean = true,
@@ -12,8 +15,13 @@ data class NotificationSettings(
 
 class NotificationSettingsRepository(context: Context) {
     private val preferences = context.applicationContext.getSharedPreferences("notification_settings", Context.MODE_PRIVATE)
+    private val settingsState = MutableStateFlow(readSettings())
 
-    fun getSettings(): NotificationSettings = NotificationSettings(
+    fun observeSettings(): StateFlow<NotificationSettings> = settingsState.asStateFlow()
+
+    fun getSettings(): NotificationSettings = settingsState.value
+
+    private fun readSettings(): NotificationSettings = NotificationSettings(
         allEnabled = preferences.getBoolean(KEY_ALL_ENABLED, true),
         budgetEnabled = preferences.getBoolean(KEY_BUDGET_ENABLED, true),
         goalEnabled = preferences.getBoolean(KEY_GOAL_ENABLED, true),
@@ -29,6 +37,7 @@ class NotificationSettingsRepository(context: Context) {
             .putBoolean(KEY_CASH_REMINDER_ENABLED, settings.cashReminderEnabled)
             .putInt(KEY_CASH_REMINDER_INTERVAL_DAYS, settings.cashReminderIntervalDays.coerceIn(1, 30))
             .apply()
+        settingsState.value = readSettings()
     }
 
     fun update(transform: (NotificationSettings) -> NotificationSettings): NotificationSettings {
