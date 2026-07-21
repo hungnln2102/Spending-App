@@ -1,10 +1,16 @@
-﻿package com.spendingapp.core.repository
+package com.spendingapp.core.repository
 
 import android.content.Context
-import androidx.core.content.edit
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+
+private val Context.themeSettingsDataStore by preferencesDataStore(name = "theme_settings")
 
 data class ThemeSettings(
     val mode: ThemeMode = ThemeMode.SYSTEM,
@@ -17,7 +23,7 @@ enum class ThemeMode {
 }
 
 class ThemeSettingsRepository(context: Context) {
-    private val preferences = context.applicationContext.getSharedPreferences("theme_settings", Context.MODE_PRIVATE)
+    private val dataStore = context.applicationContext.themeSettingsDataStore
     private val settingsState = MutableStateFlow(readSettings())
 
     fun observeSettings(): StateFlow<ThemeSettings> = settingsState.asStateFlow()
@@ -25,19 +31,31 @@ class ThemeSettingsRepository(context: Context) {
     fun getSettings(): ThemeSettings = settingsState.value
 
     fun saveSettings(settings: ThemeSettings): ThemeSettings {
-        preferences.edit { putString(KEY_MODE, settings.mode.name) }
+        runBlocking {
+            dataStore.edit { preferences ->
+                preferences[KEY_MODE] = settings.mode.name
+            }
+        }
         settingsState.value = settings
         return settings
     }
 
-    private fun readSettings(): ThemeSettings {
+    private fun readSettings(): ThemeSettings = runBlocking {
+        val preferences = dataStore.data.first()
         val mode = runCatching {
-            ThemeMode.valueOf(preferences.getString(KEY_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name)
+            ThemeMode.valueOf(preferences[KEY_MODE] ?: ThemeMode.SYSTEM.name)
         }.getOrDefault(ThemeMode.SYSTEM)
-        return ThemeSettings(mode = mode)
+        ThemeSettings(mode = mode)
+    }
+
+    internal fun clearForTest() {
+        runBlocking {
+            dataStore.edit { preferences -> preferences.clear() }
+        }
+        settingsState.value = ThemeSettings()
     }
 
     private companion object {
-        const val KEY_MODE = "mode"
+        val KEY_MODE = stringPreferencesKey("mode")
     }
 }

@@ -1,22 +1,39 @@
-﻿package com.spendingapp.core.repository
+package com.spendingapp.core.repository
 
 import android.content.Context
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+
+private val Context.webhookSettingsDataStore by preferencesDataStore(name = "webhook_settings")
 
 class WebhookSettingsRepository(context: Context) {
-    private val preferences = context.applicationContext.getSharedPreferences("webhook_settings", Context.MODE_PRIVATE)
+    private val dataStore = context.applicationContext.webhookSettingsDataStore
 
     fun saveWebhookUrl(url: String) {
-        preferences.edit().putString(KEY_WEBHOOK_URL, url.trim()).apply()
+        runBlocking {
+            dataStore.edit { preferences ->
+                preferences[KEY_WEBHOOK_URL] = url.trim()
+            }
+        }
     }
 
-    fun getWebhookUrl(): String = preferences.getString(KEY_WEBHOOK_URL, DEFAULT_WEBHOOK_URL).orEmpty()
+    fun getWebhookUrl(): String = runBlocking {
+        dataStore.data.first()[KEY_WEBHOOK_URL] ?: DEFAULT_WEBHOOK_URL
+    }
 
     fun clearWebhookUrl() {
-        preferences.edit().remove(KEY_WEBHOOK_URL).apply()
+        runBlocking {
+            dataStore.edit { preferences ->
+                preferences.remove(KEY_WEBHOOK_URL)
+            }
+        }
     }
 
     private companion object {
-        const val KEY_WEBHOOK_URL = "webhook_url"
+        val KEY_WEBHOOK_URL = stringPreferencesKey("webhook_url")
         const val DEFAULT_WEBHOOK_URL = "https://admin.mavrykpremium.com/bot/payment_sepay/"
     }
 }

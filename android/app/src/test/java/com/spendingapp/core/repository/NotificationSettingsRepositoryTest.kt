@@ -20,8 +20,8 @@ class NotificationSettingsRepositoryTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE).edit().clear().commit()
         repository = NotificationSettingsRepository(context)
+        repository.clearForTest()
     }
 
     @Test

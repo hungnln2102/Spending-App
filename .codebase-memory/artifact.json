@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "5e20cb094a8dae3b0dcd94e708a01e815eb20611",
-    "indexed_at": "2026-07-20T18:20:30Z",
+    "commit": "1a91bec7606333398aeda043e9248424345f6417",
+    "indexed_at": "2026-07-21T18:38:44Z",
     "project": "Spending-App",
-    "nodes": 995,
-    "edges": 4599,
-    "original_size": 4128768,
-    "compressed_size": 364401,
+    "nodes": 1045,
+    "edges": 4921,
+    "original_size": 4194304,
+    "compressed_size": 385940,
     "compression_level": 3
 }

@@ -18,8 +18,8 @@ class ThemeSettingsRepositoryTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        context.getSharedPreferences("theme_settings", Context.MODE_PRIVATE).edit().clear().commit()
         repository = ThemeSettingsRepository(context)
+        repository.clearForTest()
     }
 
     @Test

@@ -62,6 +62,13 @@ android {
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
+
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = true
+        htmlReport = true
+        textReport = true
+    }
 }
 
 dependencies {
@@ -96,3 +103,4 @@ dependencies {
     testImplementation("androidx.test:core:1.6.1")
     testImplementation("androidx.room:room-testing:$roomVersion")
 }
+

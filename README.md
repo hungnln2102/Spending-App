@@ -40,24 +40,76 @@ android/
 - Gradle binary local: `tools/gradle-8.10.2`.
 - Android SDK packages: `platforms;android-35`, `build-tools;35.0.0`, `platform-tools`.
 
-## Build
+## Build / Test / Lint
 
-Build bằng Gradle local trong repo:
+Các lệnh dưới đây dùng toolchain local trong repo.
+
+### Chuẩn bị biến môi trường
 
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-17.0.19.10-hotspot'
 $env:ANDROID_HOME = (Resolve-Path 'tools\android-sdk').Path
 $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
+$env:Path = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\cmdline-tools\latest\bin;$env:ANDROID_HOME\platform-tools;$env:Path"
 cd android
-..\tools\gradle-8.10.2\bin\gradle.bat :app:assembleDebug --console=plain
 ```
 
-APK debug sau khi build:
+### Compile nhanh
+
+```powershell
+..\tools\gradle-8.10.2\bin\gradle.bat :app:compileDebugKotlin --console=plain --no-daemon
+```
+
+### Unit test
+
+```powershell
+..\tools\gradle-8.10.2\bin\gradle.bat :app:testDebugUnitTest --console=plain --no-daemon
+```
+
+### Android lint
+
+```powershell
+..\tools\gradle-8.10.2\bin\gradle.bat :app:lintDebug --console=plain --no-daemon
+```
+
+Lint report sau khi chạy:
+
+```text
+android/app/build/reports/lint-results-debug.html
+```
+
+### Build APK debug
+
+```powershell
+..\tools\gradle-8.10.2\bin\gradle.bat :app:assembleDebug --console=plain --no-daemon
+```
+
+APK debug:
 
 ```text
 android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
+### Build APK release/internal
+
+Release/internal APK dùng signing config nội bộ từ `android/keystore.properties` và keystore local trong `android/keystores/`.
+
+```powershell
+..\tools\gradle-8.10.2\bin\gradle.bat :app:assembleRelease --console=plain --no-daemon
+```
+
+APK release/internal:
+
+```text
+android/app/build/outputs/apk/release/SpendingApp-0.2.0-internal-release.apk
+```
+
+### Kiểm tra metadata APK
+
+```powershell
+& ..\tools\android-sdk\build-tools\35.0.0\aapt.exe dump badging app\build\outputs\apk\release\SpendingApp-0.2.0-internal-release.apk
+& ..\tools\android-sdk\build-tools\35.0.0\apksigner.bat verify --print-certs app\build\outputs\apk\release\SpendingApp-0.2.0-internal-release.apk
+```
 ## Trạng thái triển khai
 
 Đã scaffold:
@@ -91,6 +143,7 @@ Theo `TASKS.md`, tiếp tục từ:
 2. Làm hạn mức chi tiêu local.
 3. Làm dashboard báo cáo chi tiết hơn.
 4. Thêm WorkManager auto sync nền.
+
 
 
 

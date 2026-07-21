@@ -124,11 +124,11 @@ enum class SePayTransactionType { IN, OUT }
 
 class SePaySyncException(message: String) : RuntimeException(message)
 
-private fun JsonObject.firstString(vararg keys: String): String? = keys.firstNotNullOfOrNull { key ->
+internal fun JsonObject.firstString(vararg keys: String): String? = keys.firstNotNullOfOrNull { key ->
     (this[key] as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
 }
 
-private fun JsonObject.firstLong(vararg keys: String): Long? = firstString(*keys)
+internal fun JsonObject.firstLong(vararg keys: String): Long? = firstString(*keys)
     ?.filter { it.isDigit() || it == '-' }
     ?.toLongOrNull()
 

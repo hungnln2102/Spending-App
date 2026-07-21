@@ -232,9 +232,9 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Cấu hình formatter/lint phù hợp.
+- [x] Cấu hình formatter/lint phù hợp.
 - [x] Tạo unit test sample.
-- [ ] Tạo README lệnh build/test.
+- [x] Tạo README lệnh build/test.
 - [x] Cấu hình gitignore.
 
 **Acceptance criteria:**
@@ -734,7 +734,7 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 - [x] Bật/tắt budget notification.
 - [x] Bật/tắt goal notification.
 - [x] Bật/tắt nhắc cập nhật tiền mặt.
-- [ ] Lưu bằng DataStore.
+- [x] Lưu bằng DataStore.
 
 **Acceptance criteria:**
 
@@ -1042,15 +1042,15 @@ Tài liệu này là backlog triển khai theo kiến trúc **local-first** đã
 
 **Checklist:**
 
-- [ ] Cấu hình API đọc dữ liệu từ endpoint riêng.
-- [ ] Cấu hình auth/secret.
+- [x] Cấu hình API đọc dữ liệu từ endpoint riêng.
+- [x] Cấu hình auth/secret.
 - [x] Fetch transaction list.
-- [ ] Đi qua TransactionImportPipeline.
-- [ ] Lưu SyncState riêng source webhook_endpoint.
+- [x] Đi qua TransactionImportPipeline.
+- [x] Lưu SyncState riêng source webhook_endpoint.
 
 **Acceptance criteria:**
 
-- [ ] App import được dữ liệu từ endpoint user cung cấp mà không tạo trùng.
+- [x] App import được dữ liệu từ endpoint user cung cấp mà không tạo trùng.
 
 ### T-1003 - Tài liệu hướng dẫn webhook user-owned `[P2][OPS]`
 
@@ -1335,6 +1335,9 @@ Một task được xem là hoàn thành khi:
 - Pull sync khi mở app và nút Đồng bộ là trải nghiệm chính.
 - WorkManager chỉ là bổ trợ, không hứa realtime.
 - Luôn ưu tiên quyền riêng tư: dữ liệu của ai nằm trên máy người đó.
+
+
+
 
 
 

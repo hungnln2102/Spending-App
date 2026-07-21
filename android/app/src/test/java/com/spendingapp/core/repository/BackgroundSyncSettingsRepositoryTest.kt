@@ -20,8 +20,8 @@ class BackgroundSyncSettingsRepositoryTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        context.getSharedPreferences("background_sync_settings", Context.MODE_PRIVATE).edit().clear().commit()
         repository = BackgroundSyncSettingsRepository(context)
+        repository.clearForTest()
     }
 
     @Test

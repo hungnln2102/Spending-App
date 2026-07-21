@@ -26,8 +26,8 @@ class LocalNotificationServiceTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE).edit().clear().commit()
         settingsRepository = NotificationSettingsRepository(context)
+        settingsRepository.clearForTest()
         service = LocalNotificationService(context, settingsRepository)
         service.createChannels()
     }

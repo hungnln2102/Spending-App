@@ -25,6 +25,8 @@ import com.spendingapp.core.sync.SePayBackgroundSyncScheduler
 import com.spendingapp.core.sync.SePayApiClient
 import com.spendingapp.core.sync.SePaySyncService
 import com.spendingapp.core.sync.TransactionImportPipeline
+import com.spendingapp.core.sync.WebhookEndpointHttpClient
+import com.spendingapp.core.sync.WebhookEndpointSyncService
 import com.spendingapp.core.sync.WebhookEndpointTester
 
 class AppContainer(context: Context) {
@@ -56,6 +58,8 @@ class AppContainer(context: Context) {
     val autoSyncCoordinator = AutoSyncCoordinator(context.applicationContext, database, { secureTokenStorage.getSePayToken() }, sePaySyncService)
     val sePayBackgroundSyncScheduler = SePayBackgroundSyncScheduler(context.applicationContext)
     val webhookSettingsRepository = WebhookSettingsRepository(context)
+    val webhookEndpointClient = WebhookEndpointHttpClient()
+    val webhookEndpointSyncService = WebhookEndpointSyncService(database, webhookEndpointClient, transactionImportPipeline, domainEventPublisher)
     val webhookEndpointTester = WebhookEndpointTester()
 }
 
